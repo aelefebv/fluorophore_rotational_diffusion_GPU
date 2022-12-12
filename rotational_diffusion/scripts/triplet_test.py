@@ -13,7 +13,7 @@ def triplet_to_singlet(fluorophores, capture_len_ns=5000, interval_ns=5, intensi
 
 my_fluorophore = fluorophores.mScarlet()
 number_of_molecules = 1E5
-my_state_info = utils.create_triplet_state_info(my_fluorophore)
+my_state_info = utils.state_info_creator.create_triplet_state_info(my_fluorophore)
 f = fluorophore_rotational_diffusion.Fluorophores(
     number_of_molecules=number_of_molecules,
     state_info=my_state_info,

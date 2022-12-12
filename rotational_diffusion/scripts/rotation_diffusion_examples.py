@@ -75,7 +75,7 @@ def make_animation_frame(my_fluorophores, filename, frame_number,
     ax.yaxis._axinfo["grid"].update({"color":'#dcdcdc'})
     ax.zaxis._axinfo["grid"].update({"color":'#dcdcdc'})
     if label is not None: plt.suptitle(label)
-    plt.savefig('./%s_frame_%06i.png'%(filename, frame_number),
+    plt.savefig('%s_frame_%06i.png'%(filename, frame_number),
                 bbox_inches='tight', dpi=100)
     plt.close(fig)
     
@@ -127,7 +127,7 @@ def make_animation_frame(my_fluorophores, filename, frame_number,
 ## (this might even be accurate re: the SP8 experiment)
 
 print("Animation 3: Triggered Triplets")
-output_name = 'Animation_Triplet_crescent/animation_1'
+output_name = 'animation_1'
 state_info = FluorophoreStateInfo()
 state_info.add('ground')
 state_info.add('excited_singlet', lifetime=4,
