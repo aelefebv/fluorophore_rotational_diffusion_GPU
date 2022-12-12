@@ -10,39 +10,36 @@ class ElectronicState:
                  probabilities=None):
         self.name = name
         self.lifetime = lifetime
-        self.transition_states = transition_states
-        self.probabilities = probabilities
 
+        # validate input
         assert isinstance(self.name, str)
         assert isinstance(self.lifetime, (int, float))
         assert self.lifetime > 0
-        self._validate_transition_states()
-        self._validate_probabilities()
 
-    def _validate_transition_states(self):
-        """Ensures transition states is a list of strings."""
-        if self.transition_states is None:
-            assert self.probabilities is None
-            self.transition_states = [self.name]
-        else:  # makes sure probabilities are provided if there are transition states provided
-            assert self.probabilities is not None
-        if isinstance(self.transition_states, str):
-            self.transition_states = [self.transition_states]
-        for transition_state in self.transition_states:
-            assert isinstance(transition_state, str)
+        # set default and clean up transition states
+        if transition_states is None:
+            transition_states = [self.name]
+        if isinstance(transition_states, str):
+            transition_states = [transition_states]
+        for idx, transition_state in enumerate(transition_states):
+            if not isinstance(transition_state, str):
+                raise ValueError("transition states must be a string or list of strings")
+        self.transition_states = transition_states
 
-    def _validate_probabilities(self):
-        """Ensures probabilities is a list of floats that sum to 1, but will make it sum to 1 if not."""
-        if len(self.transition_states) == 1 and self.probabilities is None:
-            self.probabilities = [1]
-        if not isinstance(self.probabilities, list):
-            self.probabilities = [self.probabilities]
-        for probability in self.probabilities:
+        # set default and clean up probabilities
+        if probabilities is None:
+            if len(self.transition_states) == 1:
+                probabilities = [1]
+            else:
+                raise ValueError("probabilities must be provided when multiple transition states are provided")
+        if not isinstance(probabilities, list):
+            probabilities = [probabilities]
+        for probability in probabilities:
             assert isinstance(probability, (int, float))
-        self.probabilities = np.asarray(self.probabilities, 'float64')
-        assert self.probabilities.shape == (len(self.transition_states),)
-        assert np.all(self.probabilities > 0)
-        self.probabilities /= self.probabilities.sum()
+        probabilities = np.asarray(probabilities, 'float64')
+        assert probabilities.shape == (len(self.transition_states),)
+        assert np.all(probabilities > 0)
+        self.probabilities = probabilities / probabilities.sum()
 
 
 class PossibleStates:

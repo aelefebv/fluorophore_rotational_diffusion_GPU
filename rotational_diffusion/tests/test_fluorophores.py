@@ -55,7 +55,7 @@ def test_electronic_state_lifetime_positive():
 
 
 def test_electronic_state_transition_states_type():
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         ElectronicState("S0", 1, [1, 2])
 
 
