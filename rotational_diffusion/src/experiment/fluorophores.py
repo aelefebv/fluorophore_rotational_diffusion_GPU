@@ -1,16 +1,52 @@
-from rotational_diffusion.src import utils
 import numpy as np
 
 from rotational_diffusion.src.utils.general import sin_cos
 
-class StateInfo:
 
+class ElectronicState:
+    """Information about an electronic state of a fluorophore."""
+    def __init__(self, name: str, lifetime: float,
+                 transition_states=None,
+                 probabilities=None):
+        self.name = name
+        self.lifetime = lifetime
+        self.transition_states = transition_states
+        self.probabilities = probabilities
+
+        assert isinstance(self.name, str)
+        assert isinstance(self.lifetime, (int, float))
+        assert self.lifetime > 0
+        self._validate_transition_states()
+        self._validate_probabilities()
+
+    def _validate_transition_states(self):
+        """Ensures transition states is a list of strings."""
+        if self.transition_states is None:
+            assert self.probabilities is None
+            self.transition_states = [self.name]
+        else:  # makes sure probabilities are provided if there are transition states provided
+            assert self.probabilities is not None
+        if isinstance(self.transition_states, str):
+            self.transition_states = [self.transition_states]
+        for transition_state in self.transition_states:
+            assert isinstance(transition_state, str)
+
+    def _validate_probabilities(self):
+        """Ensures probabilities is a list of floats that sum to 1, but will make it sum to 1 if not."""
+        if len(self.transition_states) == 1 and self.probabilities is None:
+            self.probabilities = [1]
+        if not isinstance(self.probabilities, list):
+            self.probabilities = [self.probabilities]
+        for probability in self.probabilities:
+            assert isinstance(probability, (int, float))
+        self.probabilities = np.asarray(self.probabilities, 'float64')
+        assert self.probabilities.shape == (len(self.transition_states),)
+        assert np.all(self.probabilities > 0)
+        self.probabilities /= self.probabilities.sum()
 
 
 class PossibleStates:
-    """
-    Holds a list of possible fluorophore states and initializes blank.
-    """
+    """Holds a list of possible fluorophore electronic states."""
     def __init__(self):
         self.list = []
         self.dict = {}
