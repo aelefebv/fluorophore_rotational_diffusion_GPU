@@ -2,6 +2,9 @@
 import numpy as np
 from numpy.random import uniform, exponential, normal
 
+from rotational_diffusion.src.utils.general import sin_cos
+from rotational_diffusion.tests.test_utils import _test_sin_cos
+
 """
 Time-resolved fluorescence anisotropy decay (TR-FA) is a powerful
 technique which reveals how fast an ensemble of fluorescent molecules
@@ -508,7 +511,7 @@ class Orientations:
         assert initial_orientations in ('uniform', 'polar')
         if initial_orientations == 'uniform':
             # Generate random points on a sphere:
-            sin_ph, cos_ph = sin_cos(uniform(0, 2*np.pi, self.n), '0,2pi')
+            sin_ph, cos_ph = sin_cos(uniform(0, 2 * np.pi, self.n), '0,2pi')
             cos_th = uniform(-1, 1, self.n)
             sin_th = np.sqrt(1 - cos_th*cos_th)
             self.x = sin_th * cos_ph
@@ -846,7 +849,7 @@ def to_xyz(theta, phi, method='ugly'):
     """
     assert method in ('ugly', 'direct')
     sin_th, cos_th = sin_cos(theta, method='0,pi')
-    sin_ph, cos_ph = sin_cos(phi,   method='0,2pi')
+    sin_ph, cos_ph = sin_cos(phi, method='0,2pi')
     if method == 'direct': # The obvious way
         x = sin_th * cos_ph
         y = sin_th * sin_ph
@@ -875,61 +878,6 @@ def _test_to_xyz(n=int(1e6), dtype='float64'):
             t[method].append(end - start)
         print('%0.1f'%(1e9*np.mean(t[method]) / n),
               'nanoseconds per %6s to_xyz()'%(method))
-    return None
-
-def sin_cos(radians, method='sqrt'):
-    """We often want both the sine and cosine of an array of angles. We
-    can do this slightly faster with a sqrt, especially in the common
-    cases where the angles are between 0 and pi, or 0 and 2pi.
-
-    Since the whole point of this code is to be fast, there's no
-    checking for validity, i.e. 0 < radians < pi, 2pi. Make sure you
-    don't use out-of-range arguments.
-    """
-    radians = np.atleast_1d(radians)
-    assert method in ('direct', 'sqrt', '0,2pi', '0,pi')
-    cos = np.cos(radians)
-    
-    if method == 'direct': # Simple and obvious
-        sin = np.sin(radians)
-    else: # |sin| = np.sqrt(1 - cos*cos)
-        sin = np.sqrt(1 - cos*cos)
-        
-    if method == 'sqrt': # Handle arbitrary values of 'radians'
-        sin[np.pi - (radians % (2*np.pi)) < 0] *= -1
-    elif method == '0,2pi': # Assume 0 < radians < 2pi, no mod
-        sin[np.pi - (radians            ) < 0] *= -1
-    elif method == '0,pi': # Assume 0 < radians < pi, no negation
-        pass
-    return sin, cos
-
-def _test_sin_cos(n=int(1e6), dtype='float64'):
-    import time
-    """This test doesn't pass for float32, but neither does sin^2 + cos^2 == 1
-    """
-    theta = uniform(0,   np.pi, size=n).astype(dtype)
-    phi   = uniform(0, 2*np.pi, size=n).astype(dtype)
-    x     = uniform(0, 8*np.pi, size=n).astype(dtype)
-
-    assert np.allclose(sin_cos(x,     method='direct'),
-                       sin_cos(x,     method='sqrt'))
-    
-    assert np.allclose(sin_cos(phi,   method='direct'),
-                       sin_cos(phi,   method='0,2pi'))
-
-    assert np.allclose(sin_cos(theta, method='direct'),
-                       sin_cos(theta, method='0,pi'))
-    print()
-    t = {}
-    for method in ('direct', 'sqrt', '0,2pi', '0,pi'):
-        t[method] = []
-        for i in range(10):
-            start = time.perf_counter()
-            sin_cos(theta, method)
-            end = time.perf_counter()
-            t[method].append(end - start)
-        print('%0.1f'%(1e9*np.mean(t[method]) / n),
-              'nanoseconds per %6s sin_cos()'%(method))
     return None
 
 
