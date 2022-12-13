@@ -1,3 +1,4 @@
+import rotational_diffusion.src.experiments.fluorophore
 from rotational_diffusion import fluorophore_rotational_diffusion, pulse_schemes, fluorophores, utils
 import numpy as np
 
@@ -14,7 +15,7 @@ def triplet_to_singlet(fluorophores, capture_len_ns=5000, interval_ns=5, intensi
 my_fluorophore = fluorophores.mScarlet()
 number_of_molecules = 1E5
 my_state_info = utils.state_info_creator.create_triplet_state_info(my_fluorophore)
-f = fluorophore_rotational_diffusion.Fluorophores(
+f = rotational_diffusion.src.experiment.fluorophore_properties.FluorophoreCollection(
     number_of_molecules=number_of_molecules,
     state_info=my_state_info,
     diffusion_time=my_fluorophore.rotational_diffusion_time_ns

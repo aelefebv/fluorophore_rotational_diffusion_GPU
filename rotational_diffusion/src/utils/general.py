@@ -29,11 +29,11 @@ def sin_cos(radians, method='sqrt'):
     else:  # |sin| = np.sqrt(1 - cos*cos)
         sin = np.sqrt(1 - cos*cos)
 
-    if method == 'sqrt': # Handle arbitrary values of 'radians'
+    if method == 'sqrt':  # Handle arbitrary values of 'radians'
         sin[np.pi - (radians % (2*np.pi)) < 0] *= -1
-    elif method == '0,2pi': # Assume 0 < radians < 2pi, no mod
+    elif method == '0,2pi':  # Assume 0 < radians < 2pi, no mod
         sin[np.pi - (radians            ) < 0] *= -1
-    elif method == '0,pi': # Assume 0 < radians < pi, no negation
+    elif method == '0,pi':  # Assume 0 < radians < pi, no negation
         pass
     return sin, cos
 

@@ -1,24 +1,28 @@
-from rotational_diffusion import fluorophore_rotational_diffusion
+from rotational_diffusion.src.components import fluorophore
 
 
-def create_triplet_state_info(fluorophore):
-    state_info = fluorophore_rotational_diffusion.FluorophoreStateInfo()
-    state_info.add('ground')
-    state_info.add('triplet', lifetime=fluorophore.triplet_lifetime_ns, final_states='ground')
-    # state_info.add('singlet', lifetime=fluorophore.singlet_lifetime_ns, final_states='ground')
-    state_info.add(
-        'singlet', lifetime=fluorophore.singlet_lifetime_ns,
-        final_states=['ground', 'triplet'],
-        probabilities=[1-fluorophore.triplet_quantum_yield, fluorophore.triplet_quantum_yield]
+def create_triplet_state_info(molecule):
+    ground_state = fluorophore.ElectronicState('ground')
+    triplet_state = fluorophore.ElectronicState(
+        'triplet', lifetime=molecule.triplet_lifetime_ns, transition_states='ground'
     )
+    singlet_state = fluorophore.ElectronicState(
+        'singlet', lifetime=molecule.singlet_lifetime_ns,
+        transition_states=['ground', 'triplet'],
+        probabilities=[1 - molecule.triplet_quantum_yield, molecule.triplet_quantum_yield]
+    )
+    state_info = fluorophore.PossibleStates(ground_state)
+    state_info.add_state(triplet_state)
+    state_info.add_state(singlet_state)
     return state_info
 
 
-def create_singlet_state_info(fluorophore):
-    state_info = fluorophore_rotational_diffusion.FluorophoreStateInfo()
-    state_info.add('ground')
-    state_info.add(
-        'singlet', lifetime=fluorophore.singlet_lifetime_ns,
-        final_states='ground',
+def create_singlet_state_info(molecule):
+    ground_state = fluorophore.ElectronicState('ground')
+    singlet_state = fluorophore.ElectronicState(
+        'singlet', lifetime=molecule.singlet_lifetime_ns,
+        transition_states='ground',
     )
+    state_info = fluorophore.PossibleStates(ground_state)
+    state_info.add_state(singlet_state)
     return state_info

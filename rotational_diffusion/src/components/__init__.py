@@ -1,1 +1,1 @@
-from rotational_diffusion.src.components import excitation_schemes, fluorophore_properties
+from . import fluorophore

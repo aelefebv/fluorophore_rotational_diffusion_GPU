@@ -1,4 +1,4 @@
-from rotational_diffusion.src.experiment.fluorophores import ElectronicState, PossibleStates
+from rotational_diffusion.src.components.fluorophore import ElectronicState, PossibleStates
 import numpy as np
 import pytest
 
