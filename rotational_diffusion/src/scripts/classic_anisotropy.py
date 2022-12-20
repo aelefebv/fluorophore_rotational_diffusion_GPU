@@ -1,4 +1,4 @@
-from rotational_diffusion import fluorophore_rotational_diffusion
+from rotational_diffusion.src.components import fluorophore
 import matplotlib.pyplot as plt
 from numpy.random import uniform
 import numpy as np
@@ -6,7 +6,7 @@ import numpy as np
 
 ### anisotropy example
 n = int(1e7)
-f = fluorophore_rotational_diffusion.Fluorophores(n)
+f = fluorophore.FluorophoreCollection(n)
 print('Simulating', end='')
 f.phototransition('ground', 'excited', intensity=0.05, polarization_xyz=(1, 0, 0))
 f.phototransition('excited', 'triplet', intensity=0.05, polarization_xyz=(1, 0, 0))

@@ -75,7 +75,7 @@ def make_animation_frame(my_fluorophores, filename, frame_number,
     ax.yaxis._axinfo["grid"].update({"color":'#dcdcdc'})
     ax.zaxis._axinfo["grid"].update({"color":'#dcdcdc'})
     if label is not None: plt.suptitle(label)
-    plt.savefig('./%s_frame_%06i.png'%(filename, frame_number),
+    plt.savefig('%s_frame_%06i.png'%(filename, frame_number),
                 bbox_inches='tight', dpi=100)
     plt.close(fig)
     
@@ -124,10 +124,10 @@ def make_animation_frame(my_fluorophores, filename, frame_number,
 ## polarized beam. For now, let's just look at what distribution
 ## crescent selection of triplets gives. We are going to interleave
 ## pulses of triplet generation and triplet triggering every 12.5 ns
-## (this might even be accurate re: the SP8 experiment)
+## (this might even be accurate re: the SP8 variables)
 
 print("Animation 3: Triggered Triplets")
-output_name = 'Animation_Triplet_crescent/animation_1'
+output_name = 'animation_1'
 state_info = FluorophoreStateInfo()
 state_info.add('ground')
 state_info.add('excited_singlet', lifetime=4,
@@ -165,9 +165,9 @@ for i in range(16): #80 MHz, 200 ns (actual SP8 parameters)
     current_frame += 1
 
 print('\nTime evolving', end='')
-# Now, let's time evolve a long way and see what we'd expect from an experiment
+# Now, let's time evolve a long way and see what we'd expect from an variables
 a.delete_fluorophores_in_state('ground') # performance
-for x in range(1000): # sort of a time resolved experiment
+for x in range(1000): # sort of a time resolved variables
     a.time_evolve(5) # going in 5 ns chunks
     a.delete_fluorophores_in_state('ground')
     a.phototransition('excited_triplet',
