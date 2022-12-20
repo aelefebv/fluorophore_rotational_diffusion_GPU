@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 
 
 def plot_ratiometric_anisotropy(fluorophore, t_parallel, t_perpendicular, title,
-                                x_space=(3, 6, 50), save_name=None, save=True, log=True):
+                                x_space=(3, 6, 50), save_name=None, save=True, log=True, plot_keep=None):
     if save_name is None:
         save_name = title
     start, stop, steps = x_space
@@ -15,30 +15,34 @@ def plot_ratiometric_anisotropy(fluorophore, t_parallel, t_perpendicular, title,
     (hist_parallel, _), (hist_perpendicular, _) = np.histogram(t_parallel, bins), np.histogram(t_perpendicular, bins)
 
     ratiometric = (hist_parallel - hist_perpendicular) / (hist_parallel + 2 * hist_perpendicular)
-
-    plt.figure()
-    plt.plot(bin_centers, ratiometric, '.-')
-    plt.suptitle(
-        f'{title}\n'
-        rf"$\tau_f$ = {fluorophore.state_info['singlet'].lifetime:.2f} ns, "
-        rf"$\tau_d$ = {fluorophore.orientations.rot_diffusion_time:.2f} ns"
-    )
-    plt.xlabel(r"Time (ns)")
-    plt.ylabel('Anisotropy')
+    if plot_keep is None:
+        plot_keep = plt.gca()
+    plot_keep.plot(bin_centers, ratiometric, '.-')
+    plot_keep.set(xlabel="Time (ns)", ylabel='Anisotropy',
+                  title=f'{title}\n')
+                        # rf"$\tau_f$ = {fluorophore.state_info['singlet'].lifetime:.2f} ns,"
+                        # rf"$\tau_d$ = {fluorophore.orientations.rot_diffusion_time:.2f} ns")
+    # plot_keep.suptitle(
+    #     f'{title}\n'
+    #     rf"$\tau_f$ = {fluorophore.state_info['singlet'].lifetime:.2f} ns, "
+    #     rf"$\tau_d$ = {fluorophore.orientations.rot_diffusion_time:.2f} ns"
+    # )
+    # plot_keep.xlabel(r"Time (ns)")
+    # plot_keep.ylabel('Anisotropy')
     if log:
-        plt.xscale('log')
+        plot_keep.xscale('log')
     # plt.legend()
-    plt.grid('on')
-    if save:
-        plt.savefig(save_name)
-        plt.close()
-    else:
-        plt.show()
-    return ratiometric
+    plot_keep.grid('on')
+    # if save:
+    #     plot_keep.savefig(save_name)
+    #     plot_keep.close()
+    # else:
+    #     plot_keep.show()
+    return plot_keep
 
 
 def plot_counts(fluorophore, t_parallel, t_perpendicular, title,
-                x_space=(-1E5, 1E6, 200), save_name=None, save=True, log=False):
+                x_space=(-1E5, 1E6, 200), save_name=None, save=True, log=False, plot_keep=None):
     if save_name is None:
         save_name = title
     start, stop, steps = x_space
@@ -49,23 +53,23 @@ def plot_counts(fluorophore, t_parallel, t_perpendicular, title,
     bin_centers = (bins[1:] + bins[:-1]) / 2
     (hist_parallel, _), (hist_perpendicular, _) = np.histogram(t_parallel, bins), np.histogram(t_perpendicular, bins)
 
-    plt.figure()
-    plt.plot(bin_centers, hist_parallel)
-    plt.plot(bin_centers, hist_perpendicular)
-    plt.suptitle(
-        f'{title}\n'
-        rf"$\tau_f$ = {fluorophore.state_info['singlet'].lifetime:.2f} ns, "
-        rf"$\tau_d$ = {fluorophore.orientations.rot_diffusion_time:.2f} ns"
-    )
-    plt.xlabel(r"Time (ns)")
-    plt.ylabel('Counts')
+    if plot_keep is None:
+        plot_keep = plt.gca()
+    plot_keep.plot(bin_centers, hist_parallel)
+    plot_keep.plot(bin_centers, hist_perpendicular)
+    plot_keep.set(xlabel=r"Time (ns)", ylabel='Counts',
+                  title=f'{title}\n')
+                        # rf"$\tau_f$ = {fluorophore.state_info['singlet'].lifetime:.2f} ns,"
+                        # rf"$\tau_d$ = {fluorophore.orientations.rot_diffusion_time:.2f} ns")
+    # plot_keep.xlabel(r"Time (ns)")
+    # plot_keep.ylabel('Counts')
     if log:
-        plt.xscale('log')
+        plot_keep.xscale('log')
     # plt.legend()
-    plt.grid('on')
-    if save:
-        plt.savefig(save_name)
-        plt.close()
-    else:
-        plt.show()
-    return None
+    plot_keep.grid('on')
+    # if save:
+    #     plot_keep.savefig(save_name)
+    #     plot_keep.close()
+    # else:
+    #     plot_keep.show()
+    return plot_keep
