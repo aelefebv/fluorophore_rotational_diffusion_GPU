@@ -1,10 +1,9 @@
-import numpy as np
-from numpy.random import uniform
+from rotational_diffusion.src import np
 
 
 def split_counts_xy(x, y, t):
     p_x, p_y = x**2, y**2
-    r = uniform(0, 1, size=len(t))
+    r = np.random.uniform(0, 1, size=len(t))
     in_channel_x = (r < p_x)
     in_channel_y = (p_x <= r) & (r < p_x + p_y)
     t_x, t_y = t[in_channel_x], t[in_channel_y]

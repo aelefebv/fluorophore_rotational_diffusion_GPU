@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-
-import numpy as np
+from rotational_diffusion.src import np
 
 
 @dataclass
@@ -35,6 +34,24 @@ class mScarlet:
     rotational_diffusion_time_ns: float  # 1.6E05 * np.pi?
     singlet_lifetime_ns: float = 3
     triplet_lifetime_ns: float = 5E05
+    singlet_quantum_yield: float = 0.70
+    triplet_quantum_yield: float = 0.01
+
+
+@dataclass
+class mScarlet_high_triplet:
+    rotational_diffusion_time_ns: float  # 1.6E05 * np.pi?
+    singlet_lifetime_ns: float = 3
+    triplet_lifetime_ns: float = 5E07
+    singlet_quantum_yield: float = 0.70
+    triplet_quantum_yield: float = 0.01
+
+
+@dataclass
+class mScarlet_low_triplet:
+    rotational_diffusion_time_ns: float  # 1.6E05 * np.pi?
+    singlet_lifetime_ns: float = 3
+    triplet_lifetime_ns: float = 2.5E05
     singlet_quantum_yield: float = 0.70
     triplet_quantum_yield: float = 0.01
 

@@ -1,5 +1,4 @@
-from rotational_diffusion.src import utils, components, variables
-import numpy as np
+from rotational_diffusion.src import utils, components, variables, np
 
 
 my_fluorophore = variables.molecule_properties.mScarlet(100*np.pi)

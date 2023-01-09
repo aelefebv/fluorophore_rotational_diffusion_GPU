@@ -1,8 +1,6 @@
 from rotational_diffusion.src.components import fluorophore
 import matplotlib.pyplot as plt
-from numpy.random import uniform
-import numpy as np
-
+from rotational_diffusion.src import np
 
 ### anisotropy example
 n = int(1e7)
@@ -17,7 +15,7 @@ while f.orientations.n > 0:
 print('done')
 x, y, z, t = f.get_xyzt_at_transitions('excited', 'ground')
 p_x, p_y = x**2, y**2
-r = uniform(0, 1, size=len(t))
+r = np.random.uniform(0, 1, size=len(t))
 in_channel_x = (r < p_x)
 in_channel_y = (p_x <= r) & (r < p_x + p_y)
 t_x, t_y = t[in_channel_x], t[in_channel_y]

@@ -1,5 +1,5 @@
-import numpy as np
 from rotational_diffusion.src.utils import general
+from rotational_diffusion.src import np
 
 
 def ghosh_propagator(step_sizes):

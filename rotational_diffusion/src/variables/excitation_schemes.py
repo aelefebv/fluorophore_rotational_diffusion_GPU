@@ -1,4 +1,4 @@
-import numpy as np
+from rotational_diffusion.src import np
 
 
 # 80MHz is pretty standard, assume infinitely narrow pulse width

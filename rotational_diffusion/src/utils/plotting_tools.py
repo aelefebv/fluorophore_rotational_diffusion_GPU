@@ -1,9 +1,9 @@
-import numpy as np
+from rotational_diffusion.src import np
 from matplotlib import pyplot as plt
 
 
 def plot_ratiometric_anisotropy(fluorophore, t_parallel, t_perpendicular, title,
-                                x_space=(3, 6, 50), save_name=None, save=True, log=True, plot_keep=None):
+                                x_space=(3, 6, 50), save_name=None, save=True, log=True, plot_keep=None, sub=None):
     if save_name is None:
         save_name = title
     start, stop, steps = x_space
@@ -17,6 +17,8 @@ def plot_ratiometric_anisotropy(fluorophore, t_parallel, t_perpendicular, title,
     ratiometric = (hist_parallel - hist_perpendicular) / (hist_parallel + 2 * hist_perpendicular)
     if plot_keep is None:
         plot_keep = plt.gca()
+    if sub is not None:
+        bin_centers = bin_centers - sub
     plot_keep.plot(bin_centers, ratiometric, '.-')
     plot_keep.set(xlabel="Time (ns)", ylabel='Anisotropy',
                   title=f'{title}\n')
@@ -38,7 +40,7 @@ def plot_ratiometric_anisotropy(fluorophore, t_parallel, t_perpendicular, title,
     #     plot_keep.close()
     # else:
     #     plot_keep.show()
-    return plot_keep
+    return plot_keep, ratiometric
 
 
 def plot_counts(fluorophore, t_parallel, t_perpendicular, title,

@@ -1,6 +1,4 @@
-import numpy as np
-
-from rotational_diffusion.src import utils
+from rotational_diffusion.src import utils, np
 
 
 class Orientations:
