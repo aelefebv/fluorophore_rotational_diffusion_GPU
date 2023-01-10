@@ -1,10 +1,19 @@
 from rotational_diffusion.src.components import fluorophore
 
 
-def create_triplet_state_info(molecule):
+def create_triplet_state_info(molecule, photobleach=False):
     ground_state = fluorophore.ElectronicState('ground')
+    if photobleach:
+        bleached_state = fluorophore.ElectronicState('bleached')
+        triplet_transitions = ['ground', 'bleached']
+        triplet_transition_probabilities = [1 - molecule.photobleach_chance, molecule.photobleach_chance]
+    else:
+        triplet_transitions = 'ground'
+        triplet_transition_probabilities = 1
     triplet_state = fluorophore.ElectronicState(
-        'triplet', lifetime=molecule.triplet_lifetime_ns, transition_states='ground'
+        'triplet', lifetime=molecule.triplet_lifetime_ns,
+        transition_states=triplet_transitions,
+        probabilities=triplet_transition_probabilities
     )
     singlet_state = fluorophore.ElectronicState(
         'singlet', lifetime=molecule.singlet_lifetime_ns,
@@ -14,10 +23,12 @@ def create_triplet_state_info(molecule):
     state_info = fluorophore.PossibleStates(ground_state)
     state_info.add_state(triplet_state)
     state_info.add_state(singlet_state)
+    if photobleach:
+        state_info.add_state(bleached_state)
     return state_info
 
 
-def create_singlet_state_info(molecule):
+def create_singlet_state_info(molecule, photobleach=False):
     ground_state = fluorophore.ElectronicState('ground')
     singlet_state = fluorophore.ElectronicState(
         'singlet', lifetime=molecule.singlet_lifetime_ns,
