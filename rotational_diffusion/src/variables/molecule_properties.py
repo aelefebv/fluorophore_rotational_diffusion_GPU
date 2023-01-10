@@ -36,7 +36,6 @@ class mScarlet:
     triplet_lifetime_ns: float = 5E05
     singlet_quantum_yield: float = 0.70
     triplet_quantum_yield: float = 0.01
-    photobleach_chance: float = 0.05
 
 
 @dataclass

@@ -44,10 +44,12 @@ for interval_num, collection_interval in enumerate(collection_intervals):
         sample = Sample(single_sample)
         for rep_num in range(repetitions):
             print(f'[INFO] Experiment repetitions: {(rep_num / repetitions) * 100:.2f}%', end='\r')
-            sample.experiment = components.experiment.Experiment(sample.fluorophore, num_molecules, triplet=True)
+            sample.experiment = components.experiment.Experiment(sample.fluorophore, num_molecules,
+                                                                 triplet=True, photobleach=True)
             collection_times = variables.excitation_schemes.sp8_pulse_scheme(
                 sample.experiment.fluorophores,
-                collection_interval_ns=collection_interval)
+                collection_interval_ns=collection_interval,
+                intensity_photobleach=2)
             sample.get_detector_counts('singlet', 'ground', collection_times)
         samples.append(sample)
 

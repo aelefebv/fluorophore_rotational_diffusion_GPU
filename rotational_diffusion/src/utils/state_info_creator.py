@@ -3,10 +3,10 @@ from rotational_diffusion.src.components import fluorophore
 
 def create_triplet_state_info(molecule, photobleach=False):
     ground_state = fluorophore.ElectronicState('ground')
+    bleached_state = fluorophore.ElectronicState('bleached')
     if photobleach:
-        bleached_state = fluorophore.ElectronicState('bleached')
         triplet_transitions = ['ground', 'bleached']
-        triplet_transition_probabilities = [1 - molecule.photobleach_chance, molecule.photobleach_chance]
+        triplet_transition_probabilities = [0.9999, 0.0001]
     else:
         triplet_transitions = 'ground'
         triplet_transition_probabilities = 1
