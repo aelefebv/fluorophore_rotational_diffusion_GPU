@@ -1,52 +1,21 @@
 from rotational_diffusion.src import utils, components, variables, np
 import matplotlib.pyplot as plt
 
-
-class Sample:
-    def __init__(self, fluorophore):
-        self.fluorophore = fluorophore
-        self.t_x = []
-        self.t_y = []
-        self.experiment = None
-
-    def run_experiment(self, num_molecules, pulse_scheme, use_triplets=True):
-        self.experiment = components.experiment.Experiment(self.fluorophore, num_molecules, triplet=use_triplets)
-        pulse_scheme(self.experiment.fluorophores)
-
-    def get_detector_counts(self, from_state, to_state, collection_times):
-        x, y, _, t, = self.experiment.fluorophores.get_xyzt_at_transitions(from_state, to_state)
-        t_collection = t[(t >= collection_times[0]) & (t <= collection_times[1])]
-        x_collection = x[(t >= collection_times[0]) & (t <= collection_times[1])]
-        y_collection = y[(t >= collection_times[0]) & (t <= collection_times[1])]
-        t_x_temp, t_y_temp = utils.general.split_counts_xy(x_collection, y_collection, t_collection)
-        self.t_x = np.concatenate([self.t_x, t_x_temp])
-        self.t_y = np.concatenate([self.t_y, t_y_temp])
-
-# my_fluorophore_huge_bead = variables.molecule_properties.mScarlet(1000000 * np.pi)
-# my_fluorophore_superbig_bead = variables.molecule_properties.mScarlet(100000000 * np.pi)
-my_fluorophore_100nm_bead = variables.molecule_properties.mScarlet(100000 * np.pi)
-# my_fluorophore_50nm_bead = variables.molecule_properties.mScarlet(10000 * np.pi)
-# my_fluorophore_100nm_bead_long = variables.molecule_properties.mScarlet_high_triplet(100000 * np.pi)
-# my_fluorophore_100nm_bead_short = variables.molecule_properties.mScarlet_low_triplet(100000 * np.pi)
-# my_fluorophore_small = variables.molecule_properties.mScarlet(100 * np.pi)
-# sample_list = [my_fluorophore_small, my_fluorophore_100nm_bead, my_fluorophore_huge_bead]
-sample_list = [my_fluorophore_100nm_bead]
-# collection_intervals = [60E03, 120E03, 180E03, 240E03, 300E03, 1000E03]
-collection_intervals = range(60_000, 1000_000, 200_000)
-# collection_intervals = [1000E03]
-
-num_molecules = 5E04
+my_fluorophore_medium = variables.molecule_properties.mScarlet(300000 * np.pi)
+collection_intervals = range(10_000, 2000_000, 200_000)
+sample_list = [my_fluorophore_medium]
+num_molecules = 5E05
 repetitions = 10
 samples = []
 for interval_num, collection_interval in enumerate(collection_intervals):
     print(f'[INFO] Collection interval {interval_num} of {len(collection_intervals)}')
     for single_sample in sample_list:
-        sample = Sample(single_sample)
+        sample = components.sample.Sample(single_sample)
         for rep_num in range(repetitions):
             print(f'[INFO] Experiment repetitions: {(rep_num / repetitions) * 100:.2f}%', end='\r')
             sample.experiment = components.experiment.Experiment(sample.fluorophore, num_molecules,
-                                                                 triplet=True, photobleach=True)
-            collection_times = variables.excitation_schemes.sp8_pulse_scheme(
+                                                                 triplet=True)
+            collection_times = variables.excitation_schemes.cap_only(
                 sample.experiment.fluorophores,
                 collection_interval_ns=collection_interval)
             sample.get_detector_counts('singlet', 'ground', collection_times)
@@ -59,6 +28,7 @@ for single_sample in samples:
 plt.figure()
 plt.plot(collection_intervals, mean_triplet_ani)
 plt.show()
+
 
 samples_to_plot = [samples[0], samples[len(samples)//2], samples[-1]]
 

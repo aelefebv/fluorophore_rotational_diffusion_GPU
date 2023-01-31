@@ -79,9 +79,10 @@ def sp8_pulse_scheme(fluorophores, pulse_len_ns=200, pulse_freq_hz=80E6,
         # sted delay
         fluorophores.time_evolve(triplet_interval_ns)
         # sted triplet "crescent" trigger
-        fluorophores.phototransition('triplet', 'bleached',
-                                     intensity=intensity_photobleach, polarization_xyz=polarization_xyz_triplet)
-        fluorophores.delete_fluorophores_in_state('bleached')
+        if intensity_photobleach > 0:
+            fluorophores.phototransition('triplet', 'bleached',
+                                         intensity=intensity_photobleach, polarization_xyz=polarization_xyz_triplet)
+            fluorophores.delete_fluorophores_in_state('bleached')
         fluorophores.phototransition('triplet', 'singlet',
                                      intensity=intensity_triplet, polarization_xyz=polarization_xyz_triplet)
         fluorophores.time_evolve(rep_rate_ns-triplet_interval_ns)
@@ -91,12 +92,47 @@ def sp8_pulse_scheme(fluorophores, pulse_len_ns=200, pulse_freq_hz=80E6,
     # remove any not in the crescent excitation
     fluorophores.delete_fluorophores_in_state('ground')
     # sted triplet collection trigger
-    fluorophores.phototransition('triplet', 'bleached',
-                                 intensity=intensity_photobleach, polarization_xyz=polarization_xyz_triplet)
-    fluorophores.delete_fluorophores_in_state('bleached')
+    if intensity_photobleach > 0:
+        fluorophores.phototransition('triplet', 'bleached',
+                                     intensity=intensity_photobleach, polarization_xyz=polarization_xyz_triplet)
+        fluorophores.delete_fluorophores_in_state('bleached')
     fluorophores.phototransition('triplet', 'singlet',
                                  intensity=intensity_triplet, polarization_xyz=polarization_xyz_triplet)
     fluorophores.time_evolve(singlet_decay_len_ns)
     fluorophores.delete_fluorophores_in_state('ground')
+
+    return collection_start_time, collection_end_time
+
+def cap_only(fluorophores, collection_interval_ns=10E03, singlet_decay_len_ns=1E03,
+                   intensity_singlet=3, intensity_triplet=3,
+                   polarization_xyz_singlet=(0, 1, 0), polarization_xyz_triplet=(1, 0, 0)):
+
+    fluorophores.phototransition('ground', 'singlet',
+                                 intensity=intensity_singlet, polarization_xyz=polarization_xyz_singlet)
+    fluorophores.time_evolve(collection_interval_ns)
+    fluorophores.phototransition('triplet', 'singlet',
+                                 intensity=intensity_triplet, polarization_xyz=polarization_xyz_triplet)
+    fluorophores.time_evolve(singlet_decay_len_ns)
+
+    collection_start_time = collection_interval_ns
+    collection_end_time = collection_start_time + singlet_decay_len_ns
+
+    return collection_start_time, collection_end_time
+
+def crescent_only(fluorophores, collection_interval_ns=10E03, singlet_decay_len_ns=1E03,
+                   intensity_singlet=3, intensity_crescent=3, intensity_triplet=3,
+                   polarization_xyz_singlet=(0, 1, 0), polarization_xyz_triplet=(1, 0, 0)):
+
+    fluorophores.phototransition('ground', 'singlet',
+                                 intensity=intensity_singlet, polarization_xyz=polarization_xyz_singlet)
+    fluorophores.phototransition('triplet', 'singlet',
+                                 intensity=intensity_crescent, polarization_xyz=polarization_xyz_triplet)
+    fluorophores.time_evolve(collection_interval_ns)
+    fluorophores.phototransition('triplet', 'singlet',
+                                 intensity=intensity_triplet, polarization_xyz=polarization_xyz_triplet)
+    fluorophores.time_evolve(singlet_decay_len_ns)
+
+    collection_start_time = collection_interval_ns
+    collection_end_time = collection_start_time + singlet_decay_len_ns
 
     return collection_start_time, collection_end_time
