@@ -119,15 +119,40 @@ def cap_only(fluorophores, collection_interval_ns=10E03, singlet_decay_len_ns=1E
 
     return collection_start_time, collection_end_time
 
-def crescent_only(fluorophores, collection_interval_ns=10E03, singlet_decay_len_ns=1E03,
+def crescent_only(fluorophores, collection_interval_ns=10E03, triplet_transition_delay_ns=25, singlet_decay_len_ns=1E03,
                    intensity_singlet=3, intensity_crescent=3, intensity_triplet=3,
                    polarization_xyz_singlet=(0, 1, 0), polarization_xyz_triplet=(1, 0, 0)):
 
     fluorophores.phototransition('ground', 'singlet',
                                  intensity=intensity_singlet, polarization_xyz=polarization_xyz_singlet)
+    fluorophores.time_evolve(triplet_transition_delay_ns)
     fluorophores.phototransition('triplet', 'singlet',
                                  intensity=intensity_crescent, polarization_xyz=polarization_xyz_triplet)
     fluorophores.time_evolve(collection_interval_ns)
+    fluorophores.phototransition('triplet', 'singlet',
+                                 intensity=intensity_triplet, polarization_xyz=polarization_xyz_triplet)
+    fluorophores.time_evolve(singlet_decay_len_ns)
+
+    collection_start_time = collection_interval_ns
+    collection_end_time = collection_start_time + singlet_decay_len_ns
+
+    return collection_start_time, collection_end_time
+
+
+def pump_probe(fluorophores, collection_interval_ns=1E03, triplet_transition_delay_ns=25, singlet_decay_len_ns=1E03,
+               intensity_singlet=5, intensity_crescent=0, intensity_triplet=5,
+               polarization_xyz_singlet=(0, 1, 0),
+               polarization_xyz_crescent=(1, 0, 0), polarization_xyz_triplet=(0, 0, 1)):
+    fluorophores.phototransition('ground', 'singlet',
+                                 intensity=intensity_singlet, polarization_xyz=polarization_xyz_singlet)
+    fluorophores.time_evolve(triplet_transition_delay_ns)
+    fluorophores.delete_fluorophores_in_state('ground')
+    if intensity_crescent>0:
+        fluorophores.phototransition('triplet', 'singlet',
+                                     intensity=intensity_crescent, polarization_xyz=polarization_xyz_crescent)
+    fluorophores.delete_fluorophores_in_state('ground')
+    fluorophores.time_evolve(collection_interval_ns)
+    fluorophores.delete_fluorophores_in_state('ground')
     fluorophores.phototransition('triplet', 'singlet',
                                  intensity=intensity_triplet, polarization_xyz=polarization_xyz_triplet)
     fluorophores.time_evolve(singlet_decay_len_ns)

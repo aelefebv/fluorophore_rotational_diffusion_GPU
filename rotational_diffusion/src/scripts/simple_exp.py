@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 my_fluorophore_medium = variables.molecule_properties.mScarlet(300000 * np.pi)
 collection_intervals = range(10_000, 2000_000, 200_000)
 sample_list = [my_fluorophore_medium]
-num_molecules = 5E05
+num_molecules = 5E06
 repetitions = 10
 samples = []
 for interval_num, collection_interval in enumerate(collection_intervals):
@@ -15,7 +15,7 @@ for interval_num, collection_interval in enumerate(collection_intervals):
             print(f'[INFO] Experiment repetitions: {(rep_num / repetitions) * 100:.2f}%', end='\r')
             sample.experiment = components.experiment.Experiment(sample.fluorophore, num_molecules,
                                                                  triplet=True)
-            collection_times = variables.excitation_schemes.cap_only(
+            collection_times = variables.excitation_schemes.pump_probe(
                 sample.experiment.fluorophores,
                 collection_interval_ns=collection_interval)
             sample.get_detector_counts('singlet', 'ground', collection_times)
