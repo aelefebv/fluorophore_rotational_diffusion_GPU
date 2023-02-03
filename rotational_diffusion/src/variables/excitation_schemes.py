@@ -161,3 +161,40 @@ def pump_probe(fluorophores, collection_interval_ns=1E03, triplet_transition_del
     collection_end_time = collection_start_time + singlet_decay_len_ns
 
     return collection_start_time, collection_end_time
+
+
+def pump_probe2(fluorophores, collection_time_point, excitation_properties,
+                triplet_transition_delay_ns=25, singlet_decay_len_ns=1E03):
+    # excite molecules to ground state
+    fluorophores.phototransition(
+        'ground', 'singlet',
+        intensity=excitation_properties.singlet_intensity,
+        polarization_xyz=excitation_properties.singlet_polarization,
+    )
+    # let excited molecules go to ground or triplet
+    fluorophores.time_evolve(triplet_transition_delay_ns)
+    fluorophores.delete_fluorophores_in_state('ground')
+    # crescent select if desired
+    if excitation_properties.crescent_intensity > 0:
+        fluorophores.phototransition(
+            'triplet', 'singlet',
+            intensity=excitation_properties.crescent_intensity,
+            polarization_xyz=excitation_properties.crescent_polarization,
+        )
+        fluorophores.delete_fluorophores_in_state('ground')
+    # beam comes back for triggering
+    fluorophores.time_evolve(collection_time_point)
+    fluorophores.delete_fluorophores_in_state('ground')
+    # trigger triplets back to singlets
+    fluorophores.phototransition(
+        'triplet', 'singlet',
+        intensity=excitation_properties.trigger_intensity,
+        polarization_xyz=excitation_properties.trigger_polarization
+    )
+    # let singlets decay to ground
+    fluorophores.time_evolve(singlet_decay_len_ns)
+    # calculate collection window
+    collection_start_time = collection_time_point
+    collection_end_time = collection_start_time + singlet_decay_len_ns
+
+    return collection_start_time, collection_end_time

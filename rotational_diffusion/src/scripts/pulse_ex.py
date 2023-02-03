@@ -5,7 +5,7 @@ from rotational_diffusion.src.variables import molecule_properties, excitation_s
 
 my_fluorophore = molecule_properties.mScarlet()
 number_of_molecules = 1E5
-test = experiment.Experiment(my_fluorophore, number_of_molecules, triplet=True)
+test = experiment.StateWriter(my_fluorophore, number_of_molecules, triplet=True)
 # pulse_schemes.starss_method1(f)
 excitation_schemes.starss_method2(test.fluorophores)
 x, y, z, t, = test.fluorophores.get_xyzt_at_transitions('singlet', 'ground')

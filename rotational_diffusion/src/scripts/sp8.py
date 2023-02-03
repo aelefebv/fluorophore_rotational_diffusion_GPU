@@ -10,7 +10,7 @@ class Sample:
         self.experiment = None
 
     def run_experiment(self, num_molecules, pulse_scheme, use_triplets=True):
-        self.experiment = components.experiment.Experiment(self.fluorophore, num_molecules, triplet=use_triplets)
+        self.experiment = components.experiment.StateWriter(self.fluorophore, num_molecules, triplet=use_triplets)
         pulse_scheme(self.experiment.fluorophores)
 
     def get_detector_counts(self, from_state, to_state, collection_times):
@@ -44,8 +44,8 @@ for interval_num, collection_interval in enumerate(collection_intervals):
         sample = Sample(single_sample)
         for rep_num in range(repetitions):
             print(f'[INFO] Experiment repetitions: {(rep_num / repetitions) * 100:.2f}%', end='\r')
-            sample.experiment = components.experiment.Experiment(sample.fluorophore, num_molecules,
-                                                                 triplet=True, photobleach=True)
+            sample.experiment = components.experiment.StateWriter(sample.fluorophore, num_molecules,
+                                                                  triplet=True, photobleach=True)
             collection_times = variables.excitation_schemes.sp8_pulse_scheme(
                 sample.experiment.fluorophores,
                 collection_interval_ns=collection_interval)

@@ -1,4 +1,5 @@
 from rotational_diffusion.src import utils, components, variables, np
+from rotational_diffusion.src.utils.base_logger import logger
 import numpy
 import matplotlib.pyplot as plt
 
@@ -11,19 +12,22 @@ num_molecules = 1E07
 repetitions = 20
 samples = []
 for interval_num, collection_interval in enumerate(collection_intervals):
-    print(f'[INFO] Collection interval {interval_num} of {len(collection_intervals)}')
+    logger.info(f'Collection interval {interval_num} of {len(collection_intervals)}')
     for single_sample in sample_list:
         sample = components.sample.Sample(single_sample)
         for rep_num in range(repetitions):
-            print(f'[INFO] Experiment repetitions: {(rep_num / repetitions) * 100:.2f}%', end='\r')
-            sample.experiment = components.experiment.Experiment(sample.fluorophore, num_molecules,
-                                                                 triplet=True)
+            rep_percentage = (rep_num / repetitions) * 100
+            if rep_percentage % 25 == 0:
+                logger.info(f'Experiment repetitions: {int((rep_num / repetitions) * 100)}%')
+            sample.experiment = components.experiment.StateWriter(sample.fluorophore, num_molecules,
+                                                                  triplet=True)
             collection_times = variables.excitation_schemes.pump_probe(
                 sample.experiment.fluorophores,
                 collection_interval_ns=collection_interval,
                 # polarization_xyz_triplet=(1, 0, 0)
             )
             sample.get_detector_counts('singlet', 'ground', collection_times)
+        logger.info(f'Experiment repetitions: 100%')
         samples.append(sample)
 
 mean_triplet_ani = []

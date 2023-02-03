@@ -1,16 +1,12 @@
 from rotational_diffusion.src import utils, components, np
 
+
 class Sample:
-    def __init__(self, fluorophore):
-        self.fluorophore = fluorophore
+    def __init__(self):
         self.t_x = np.array([])
         self.t_y = np.array([])
         self.ratio_mean = []
         self.experiment = None
-
-    def run_experiment(self, num_molecules, pulse_scheme, use_triplets=True):
-        self.experiment = components.experiment.Experiment(self.fluorophore, num_molecules, triplet=use_triplets)
-        pulse_scheme(self.experiment.fluorophores)
 
     def get_detector_counts(self, from_state, to_state, collection_times):
         x, y, _, t, = self.experiment.fluorophores.get_xyzt_at_transitions(from_state, to_state)
@@ -26,7 +22,3 @@ class Sample:
             self.ratio_mean.append(0)
         else:
             self.ratio_mean.append(np.nan)
-    # if len(mean_t_y) > 0:
-        #     self.ratio_mean.append(len(mean_t_x)/len(mean_t_y))
-        # else:
-        #     self.ratio_mean.append(np.nan)

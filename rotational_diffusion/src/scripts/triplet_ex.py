@@ -3,7 +3,7 @@ from rotational_diffusion.src import utils, components, variables, np
 
 my_fluorophore = variables.molecule_properties.mScarlet(100*np.pi)
 number_of_molecules = 5E6
-experiment = components.experiment.Experiment(my_fluorophore, number_of_molecules, triplet=True)
+experiment = components.experiment.StateWriter(my_fluorophore, number_of_molecules, triplet=True)
 
 pulse_len = 200
 variables.excitation_schemes.standard_pulse(experiment.fluorophores, pulse_len)
