@@ -101,7 +101,7 @@ def safe_diffusive_step(
     num_steps_min = np.amin(num_steps)
     num_steps_max = np.amax(num_steps)
     if num_steps_min == num_steps_max:  # Scalar time step
-        for _ in range(num_steps_max):
+        for _ in range(int(num_steps_max)):
             x, y, z = diffusive_step(x, y, z, max_safe_step)
     else:  # Vector time step
         assert len(normalized_time_step) == len(x)
@@ -112,7 +112,7 @@ def safe_diffusive_step(
             num_steps = num_steps[idx]
         which_step = 1
         while True:
-            first_unfinished = np.searchsorted(num_steps, which_step)
+            first_unfinished = np.searchsorted(num_steps, np.array(which_step))
             if first_unfinished == len(num_steps): # We're done taking steps
                 break
             s = slice(first_unfinished, None)

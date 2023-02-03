@@ -1,4 +1,5 @@
 from rotational_diffusion.src import np
+import numpy
 
 
 def split_counts_xy(x, y, t):
@@ -51,10 +52,10 @@ def polar_displacement(x, y, z, theta_d, phi_d, method='accurate', norm=True):
     # do this via a rotation matrix calculated as described in:
     #  doi.org/10.1080/10867651.1999.10487509
     #  "Efficiently Building a Matrix to Rotate One Vector to Another",
-    with np.errstate(divide='ignore'): # In case z = -1
+    with numpy.errstate(divide='ignore'): # In case z = -1
         ovr_1pz = 1 / (1+z)
     if method == 'naive': # The obvious way
-        with np.errstate(invalid='ignore'):
+        with numpy.errstate(invalid='ignore'):
             x_f = x_d*(z + y*y*ovr_1pz) + y_d*(   -x*y*ovr_1pz) + z_d*(x)
             y_f = x_d*(   -x*y*ovr_1pz) + y_d*(z + x*x*ovr_1pz) + z_d*(y)
             z_f = x_d*(     -x        ) + y_d*(     -y        ) + z_d*(z)
@@ -64,7 +65,7 @@ def polar_displacement(x, y, z, theta_d, phi_d, method='accurate', norm=True):
         z_f[isnan] = -z_d[isnan]
     elif method == 'accurate': # More complicated, but numerically stable?
         # Precompute a few intermediates:
-        with np.errstate(invalid='ignore'):
+        with numpy.errstate(invalid='ignore'):
             y_ovr_1pz =    y*ovr_1pz #  y / (1+z)
             xy_ovr_1pz = x*y_ovr_1pz # xy / (1+z)
             yy_ovr_1pz = y*y_ovr_1pz # yy / (1+z)

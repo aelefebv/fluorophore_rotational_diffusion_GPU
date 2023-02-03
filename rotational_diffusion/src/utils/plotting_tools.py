@@ -1,4 +1,5 @@
 from rotational_diffusion.src import np
+# import numpy as np
 from matplotlib import pyplot as plt
 
 
@@ -19,7 +20,7 @@ def plot_ratiometric_anisotropy(fluorophore, t_parallel, t_perpendicular, title,
         plot_keep = plt.gca()
     if sub is not None:
         bin_centers = bin_centers - sub
-    plot_keep.plot(bin_centers, ratiometric, '.-')
+    plot_keep.plot(bin_centers.get(), ratiometric.get(), '.-')
     plot_keep.set(xlabel="Time (ns)", ylabel='Anisotropy',
                   title=f'{title}\n')
                         # rf"$\tau_f$ = {fluorophore.state_info['singlet'].lifetime:.2f} ns,"
@@ -57,8 +58,8 @@ def plot_counts(fluorophore, t_parallel, t_perpendicular, title,
 
     if plot_keep is None:
         plot_keep = plt.gca()
-    plot_keep.plot(bin_centers, hist_parallel)
-    plot_keep.plot(bin_centers, hist_perpendicular)
+    plot_keep.plot(bin_centers.get(), hist_parallel.get())
+    plot_keep.plot(bin_centers.get(), hist_perpendicular.get())
     plot_keep.set(xlabel=r"Time (ns)", ylabel='Counts',
                   title=f'{title}\n')
                         # rf"$\tau_f$ = {fluorophore.state_info['singlet'].lifetime:.2f} ns,"

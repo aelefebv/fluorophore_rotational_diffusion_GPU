@@ -294,7 +294,7 @@ class FluorophoreCollection:
             dt = np.minimum(target_time, self.transition_times) - o.t
             idx = self._sort_by(dt)
             dt = dt if idx is None else dt[idx]  # Skip if dt is already sorted
-            s = slice(np.searchsorted(dt, 0, 'right'), None)  # Skip dt == 0
+            s = slice(np.searchsorted(dt, np.array(0), 'right'), None)  # Skip dt == 0
             # Update the orientations
             o.x[s], o.y[s], o.z[s] = utils.diffusive_steps.safe_diffusive_step(
                 o.x[s], o.y[s], o.z[s], (dt/o.rot_diffusion_time)[s])
@@ -315,8 +315,8 @@ class FluorophoreCollection:
             t = t[idx]
             transition_times = np.empty(len(states), dtype='float')
             for initial_state in range(len(self.state_info.dict)):
-                s = slice(np.searchsorted(states, initial_state, 'left'),
-                          np.searchsorted(states, initial_state, 'right'))
+                s = slice(np.searchsorted(states, np.array(initial_state), 'left'),
+                          np.searchsorted(states, np.array(initial_state), 'right'))
                 if s.start == s.stop:
                     continue
                 fs = self.state_info[initial_state].transition_states
@@ -324,7 +324,7 @@ class FluorophoreCollection:
                 probabilities = self.state_info[initial_state].probabilities
                 which_final = np.random.choice(
                     np.arange(len(final_states), dtype='int'),
-                    size=(s.stop-s.start), p=probabilities)
+                    size=int(s.stop-s.start), p=probabilities)
                 states[s] = final_states[which_final]
                 transition_times[s] = t[s] + np.random.exponential(lifetimes[which_final])
             # Undo our sorting of states and transition times, update originals

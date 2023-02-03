@@ -1,2 +1,7 @@
-# import cupy as np
-import numpy as np
+try:
+    import cupy as np
+    print("[INFO] Running on GPU.")
+except ModuleNotFoundError:
+    import numpy as np
+    print("[INFO] Running on CPU.")
+
