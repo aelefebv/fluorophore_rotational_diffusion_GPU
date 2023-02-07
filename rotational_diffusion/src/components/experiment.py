@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 from rotational_diffusion.src.utils.base_logger import logger
 from rotational_diffusion.src import utils, components, variables, np
 
+from datetime import datetime
+
 
 class MoleculeProperties:
     def __init__(self, molecule, num_molecules, rotational_diffusion_time, triplet=True):
@@ -77,6 +79,8 @@ class Experiment:
         self.num_y = 0
         self.ratio_xy_mean = None
         self.ratio_xy_std = None
+
+        self.datetime = datetime.now().strftime("%Y%m%d%H%M%S")
 
     def _get_detector_counts(self, fluorophores, from_state, to_state, collection_times):
         x, y, _, t, = fluorophores.get_xyzt_at_transitions(from_state, to_state)
@@ -151,29 +155,35 @@ class Experiment:
 
 
 if __name__ == "__main__":
-    experiments = []
+    rotational_diffusion_times = range(150000, 250000, 1000)
+    collection_times = range(1_000, 1500_000, 100_000)
+    crescent_intensities = np.arange(0.1, 5, 0.1)
     csv_path = r'C:\Users\austin\GitHub\Rotational_diffusion-AELxJLD\rotational_diffusion\data\running_data.csv'
-    num_experiments = 2
-    for _ in range(num_experiments):
-        experiment = Experiment(
-            molecule=variables.molecule_properties.mScarlet,
-            num_molecules=1E07,
-            rotational_diffusion_time_ns=250000 * np.pi,
-            collection_time_point_ns=10_000,
-            repetitions=100,
-            excitation_scheme=variables.excitation_schemes.pump_probe2,
-            singlet_polarization=(0, 1, 0), singlet_intensity=5,
-            crescent_polarization=(1, 0, 0), crescent_intensity=0,
-            trigger_polarization=(0, 0, 1), trigger_intensity=5,
-        )
-        experiment.run_experiment()
-        experiment.csv_save(csv_path)
-        experiments.append(experiment)
+    for cres_num, crescent_intensity in enumerate(crescent_intensities):
+        for rot_num, rotational_diffusion_time in enumerate(rotational_diffusion_times):
+            experiments = []
+            num_experiments = len(collection_times)
+            for experiment_num, collection_time in enumerate(collection_times):
+                logger.info(f'Experiment {experiment_num} of {len(collection_times)}, {rot_num} of {len(rotational_diffusion_times)}, {cres_num} of {len(crescent_intensities)}')
+                experiment = Experiment(
+                    molecule=variables.molecule_properties.mScarlet,
+                    num_molecules=1E07,
+                    rotational_diffusion_time_ns=rotational_diffusion_time * np.pi,
+                    collection_time_point_ns=collection_time,
+                    repetitions=100,
+                    excitation_scheme=variables.excitation_schemes.pump_probe2,
+                    singlet_polarization=(0, 1, 0), singlet_intensity=5,
+                    crescent_polarization=(1, 0, 0), crescent_intensity=crescent_intensity,
+                    trigger_polarization=(1, 0, 0), trigger_intensity=5,
+                )
+                experiment.run_experiment()
+                experiment.csv_save(csv_path)
+                experiments.append(experiment)
 
-    means = []
-    stds = []
-    for experiment in experiments:
-        means.append(experiment.ratio_xy_mean.get())  # todo cpu compat
-        stds.append(experiment.ratio_xy_std.get())  # todo cpu compat
-    plt.errorbar(range(num_experiments), means, yerr=stds)
+            means = []
+            stds = []
+            for experiment in experiments:
+                means.append(experiment.ratio_xy_mean.get())  # todo cpu compat
+                stds.append(experiment.ratio_xy_std.get())  # todo cpu compat
+            plt.errorbar(range(num_experiments), means, yerr=stds)
     plt.show()
