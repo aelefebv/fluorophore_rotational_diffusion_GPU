@@ -165,6 +165,7 @@ def pump_probe(fluorophores, collection_interval_ns=1E03, triplet_transition_del
 
 def pump_probe2(fluorophores, collection_time_point, excitation_properties,
                 triplet_transition_delay_ns=25, singlet_decay_len_ns=1E03):
+    ### Should not modify, has been used for simulation runs in running data csv.
     # excite molecules to ground state
     fluorophores.phototransition(
         'ground', 'singlet',
@@ -198,3 +199,53 @@ def pump_probe2(fluorophores, collection_time_point, excitation_properties,
     collection_end_time = collection_start_time + singlet_decay_len_ns
 
     return collection_start_time, collection_end_time
+
+
+def gentle_check(fluorophores, collection_time_point, excitation_properties,
+                triplet_transition_delay_ns=25, singlet_decay_len_ns=1E03):
+    # excite to singlet hard, let it decay to triplet/ground. every N ns pulse with circular light softly,
+    # check counts in both detectors. Could have output be a list of collection start and end times,
+    # each corresponding to a count. i.e., would want to see "if we pulsed every N ns, with M molecules and I intensity, how many counts / what SNR do we get on the Pth pulse
+    # therefore we need to add on a "pulse number" metric. That way we can compare SNR at the specific pulse number
+
+    # excite molecules to ground state
+    fluorophores.phototransition(
+        'ground', 'singlet',
+        intensity=excitation_properties.singlet_intensity,
+        polarization_xyz=excitation_properties.singlet_polarization,
+    )
+    # let excited molecules go to ground or triplet
+    fluorophores.time_evolve(triplet_transition_delay_ns)
+    fluorophores.delete_fluorophores_in_state('ground')
+
+    collection_time_points = []
+
+    # crescent select if desired
+    if excitation_properties.crescent_intensity > 0:
+        fluorophores.phototransition(
+            'triplet', 'singlet',
+            intensity=excitation_properties.crescent_intensity,
+            polarization_xyz=excitation_properties.crescent_polarization,
+        )
+        fluorophores.delete_fluorophores_in_state('ground')
+
+    for pulse_num in range(excitation_properties.num_pulses):
+        # beam comes back for triggering
+        fluorophores.time_evolve(collection_time_point)
+        fluorophores.delete_fluorophores_in_state('ground')
+        # trigger triplets back to singlets
+        fluorophores.phototransition(
+            'triplet', 'singlet',
+            intensity=excitation_properties.trigger_intensity,
+            polarization_xyz=excitation_properties.trigger_polarization
+        )
+        # let singlets decay to ground
+        fluorophores.time_evolve(singlet_decay_len_ns)
+        # calculate collection window
+        collection_start_time = collection_time_point
+        collection_end_time = collection_start_time + singlet_decay_len_ns
+        fluorophores.delete_fluorophores_in_state('ground')
+
+        collection_time_points.append((pulse_num+1, collection_start_time, collection_end_time))
+
+    return collection_time_points

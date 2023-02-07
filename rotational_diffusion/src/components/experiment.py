@@ -82,6 +82,8 @@ class Experiment:
 
         self.datetime = datetime.now().strftime("%Y%m%d%H%M%S")
 
+        self.trigger_number = None
+
     def _get_detector_counts(self, fluorophores, from_state, to_state, collection_times):
         x, y, _, t, = fluorophores.get_xyzt_at_transitions(from_state, to_state)
         t_collection = t[(t >= collection_times[0]) & (t <= collection_times[1])]
