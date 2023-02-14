@@ -76,3 +76,27 @@ def plot_counts(fluorophore, t_parallel, t_perpendicular, title,
     # else:
     #     plot_keep.show()
     return plot_keep
+
+
+def plot_snapshot(fluorophore, state=None, save=False, filename=None):
+    if save:
+        frameon = True
+    else:
+        frameon = False
+
+    if state is None:
+        o = fluorophore.orientations
+        x, y, z = o.x, o.y, o.z
+    else:
+        x, y, z = fluorophore.get_xyz_for_state(state)
+
+    fig = plt.figure(figsize=(6, 6), frameon=frameon)
+    ax = fig.add_subplot(111, projection='3d')
+    try:
+        ax.scatter(x, y, z)
+    except TypeError:
+        x = x.get()
+        y = y.get()
+        z = z.get()
+        ax.scatter(x, y, z)
+    ax.set_box_aspect(1)

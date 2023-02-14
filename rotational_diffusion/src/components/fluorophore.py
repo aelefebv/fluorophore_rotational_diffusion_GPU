@@ -338,7 +338,7 @@ class FluorophoreCollection:
 
     def get_xyz_for_state(self, state):
         assert state in self.state_info
-        state = self.state_info[state].n  # Ensure int
+        state = self.state_info[state].state_num  # Ensure int
         idx = (self.states == state)
         o = self.orientations  # Local nickname
         return o.x[idx], o.y[idx], o.z[idx]
