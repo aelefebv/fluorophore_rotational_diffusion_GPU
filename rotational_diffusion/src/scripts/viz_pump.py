@@ -1,12 +1,13 @@
 import os.path
 
-from rotational_diffusion.src import components, variables, np, utils
+from rotational_diffusion.src import components, variables, np
 import matplotlib.pyplot as plt
 from datetime import datetime
 import numpy
 
 
 plt.ioff()
+
 
 def convert_3d_to_theta_phi(x, y, z):
     theta = numpy.arccos(z)
@@ -16,7 +17,7 @@ def convert_3d_to_theta_phi(x, y, z):
 
 def save_frame(fluorophores, ids,
                save=True, filepath=None,
-               frame_num=None,
+               anim_frame_num=None,
                projection_type='3d',
                view_angle=(25, -8),
                subdir_name='3d'):
@@ -65,9 +66,9 @@ def save_frame(fluorophores, ids,
         ax.scatter(theta, phi,  marker='.', c='red', alpha=alpha_1)
         plt.grid(True)
     if save:
-        subdir = os.path.join(filepath, subdir_name)
-        os.makedirs(subdir, exist_ok=True)
-        plt.savefig(os.path.join(subdir, f'{frame_num:09}.png'))
+        anim_subdir = os.path.join(filepath, subdir_name)
+        os.makedirs(anim_subdir, exist_ok=True)
+        plt.savefig(os.path.join(anim_subdir, f'{anim_frame_num:09}.png'))
         plt.close()
     return None
 
@@ -111,13 +112,34 @@ def write_gif_from_folder(png_dir, gif_output_dir, str_template='%09d.png', file
     return None
 
 
-# setup
-output_dir_top = r"C:\Users\austin\test_files\julia"
-# num_frames = 10
-frame_num = 0
-num_molecules = 1E6
-time_step_ns = 0.5
+def time_evolve_and_save_frames(fluorophores, ids, time_step_ns,
+                                current_frame_num, current_time_point,
+                                remove_ground=True):
+    current_frame_num += 1
+    if time_step_ns != 0:
+        current_time_point = running_time_evolve(fluorophores, time_step_ns, current_time_point)
+    if remove_ground:
+        fluorophores.delete_fluorophores_in_state('ground')
+    save_frame(fluorophores, ids,
+               save=True, filepath=output_dir, anim_frame_num=current_frame_num)
+    save_frame(fluorophores, ids,
+               save=True, filepath=output_dir, anim_frame_num=current_frame_num,
+               view_angle=(0, 0), subdir_name='2d_proj_1')
+    save_frame(fluorophores, ids,
+               save=True, filepath=output_dir, anim_frame_num=current_frame_num,
+               view_angle=(0, 90), subdir_name='2d_proj_2')
+    return current_frame_num, current_time_point
 
+
+# setup manually
+output_dir_top = r"C:\Users\austin\test_files\julia"
+num_molecules = 1E6
+start_step_ns = 0.5
+start_step_log_ns = numpy.log10(start_step_ns)
+end_step_ns = 50
+end_step_log_ns = numpy.log10(end_step_ns)
+
+frame_num = 0
 time_point = 0
 dt = datetime.now().strftime('%Y%m%d%H%M%S')
 output_dir = os.path.join(output_dir_top, 'output', dt)
@@ -126,10 +148,10 @@ os.makedirs(output_dir)
 molecule_properties = components.experiment.MoleculeProperties(
     molecule=variables.molecule_properties.mScarlet,
     num_molecules=num_molecules,
-    rotational_diffusion_time=5000 * np.pi,
+    rotational_diffusion_time=10000 * np.pi,
 )
 excitation_properties = components.experiment.ExcitationProperties(
-    singlet_polarization=(0, 1, 0), singlet_intensity=3,
+    singlet_polarization=(0, 1, 0), singlet_intensity=2,
     crescent_polarization=(1, 0, 0), crescent_intensity=0,
     trigger_polarization=(1, 0, 0), trigger_intensity=3,
     num_triggers=1,
@@ -139,12 +161,9 @@ excitation_properties = components.experiment.ExcitationProperties(
 # a. show all (i.e. only ground state) molecules diffusing
 ids_to_track = get_ids_to_track(molecule_properties.fluorophores, None, num_molecules)
 for _ in range(10):
-    frame_num += 1
-    time_point = running_time_evolve(molecule_properties.fluorophores, time_step_ns, time_point)
-    save_frame(molecule_properties.fluorophores, ids_to_track,
-               save=True, filepath=output_dir, frame_num=frame_num)
-    save_frame(molecule_properties.fluorophores, ids_to_track,
-               save=True, filepath=output_dir, frame_num=frame_num, view_angle=(0, 0), subdir_name='2d_proj')
+    frame_num, time_point = time_evolve_and_save_frames(
+        molecule_properties.fluorophores, ids_to_track, start_step_ns, frame_num, time_point, remove_ground=False
+    )
 # generate effective polarization ratios at each time point?
 # b. excite to singlet --> ground and singlets
 molecule_properties.fluorophores.phototransition(
@@ -152,45 +171,44 @@ molecule_properties.fluorophores.phototransition(
     intensity=excitation_properties.singlet_intensity,
     polarization_xyz=excitation_properties.singlet_polarization,
 )
-molecule_properties.fluorophores.delete_fluorophores_in_state('ground')
-frame_num += 1
-save_frame(molecule_properties.fluorophores, ids_to_track,
-           save=True, filepath=output_dir, frame_num=frame_num)
-save_frame(molecule_properties.fluorophores, ids_to_track,
-           save=True, filepath=output_dir, frame_num=frame_num, view_angle=(0, 0), subdir_name='2d_proj')
+frame_num, time_point = time_evolve_and_save_frames(
+    molecule_properties.fluorophores, ids_to_track, 0, frame_num, time_point, remove_ground=True
+)
 # c. wait for singlets to decay --> continuous frames (maybe 0.25s resolution?) showing only singlets and triplets
 #       up to delay of 25 ns
 #       should see singlets disappear and triplets appear
-for _ in range(50):
-    frame_num += 1
-    time_point = running_time_evolve(molecule_properties.fluorophores, time_step_ns, time_point)
-    molecule_properties.fluorophores.delete_fluorophores_in_state('ground')
-    save_frame(molecule_properties.fluorophores, ids_to_track,
-               save=True, filepath=output_dir, frame_num=frame_num)
-    save_frame(molecule_properties.fluorophores, ids_to_track,
-               save=True, filepath=output_dir, frame_num=frame_num, view_angle=(0, 0), subdir_name='2d_proj')
+singlet_decay_len_ns = 25
+for _ in range(int(singlet_decay_len_ns/start_step_ns)):
+    frame_num, time_point = time_evolve_and_save_frames(
+        molecule_properties.fluorophores, ids_to_track, start_step_ns, frame_num, time_point, remove_ground=True
+    )
+# optional crescent selection
+if excitation_properties.crescent_intensity > 0:
+    molecule_properties.fluorophores.phototransition(
+        'triplet', 'singlet',
+        intensity=excitation_properties.crescent_intensity,
+        polarization_xyz=excitation_properties.crescent_polarization,
+    )
 # e. Show triplets only, diffusing until some equilibrated timepoint
 molecule_properties.fluorophores.delete_fluorophores_in_state('ground')
 ids_to_track = get_ids_to_track(molecule_properties.fluorophores, 'triplet', num_molecules)
-triplet_times = numpy.logspace(-2, 1, num=100)
-for _, triplet_time in enumerate(triplet_times):
-    frame_num += 1
-    time_point = running_time_evolve(molecule_properties.fluorophores, triplet_time, time_point)
-    save_frame(molecule_properties.fluorophores, ids_to_track,
-               save=True, filepath=output_dir, frame_num=frame_num)
-    save_frame(molecule_properties.fluorophores, ids_to_track,
-               save=True, filepath=output_dir, frame_num=frame_num, view_angle=(0, 0), subdir_name='2d_proj')
-for _ in range(1000):
-    frame_num += 1
-    time_point = running_time_evolve(molecule_properties.fluorophores, triplet_times[-1], time_point)
-    save_frame(molecule_properties.fluorophores, ids_to_track,
-               save=True, filepath=output_dir, frame_num=frame_num)
-    save_frame(molecule_properties.fluorophores, ids_to_track,
-               save=True, filepath=output_dir, frame_num=frame_num, view_angle=(0, 0), subdir_name='2d_proj')
-
-subdirs = ['3d', '2d_proj']
+# - a few frames at the slow timestep
+for _ in range(20):
+    frame_num, time_point = time_evolve_and_save_frames(
+        molecule_properties.fluorophores, ids_to_track, start_step_ns, frame_num, time_point, remove_ground=False
+    )
+# # - speed up from start step to end step
+# triplet_times = numpy.logspace(start_step_log_ns, end_step_log_ns, num=100)
+# for _, triplet_time in enumerate(triplet_times):
+#     frame_num, time_point = time_evolve_and_save_frames(
+#         molecule_properties.fluorophores, ids_to_track, triplet_time, frame_num, time_point, remove_ground=False
+#     )
+# - let triplets diffuse at fast time steps
+for _ in range(500):
+    frame_num, time_point = time_evolve_and_save_frames(
+        molecule_properties.fluorophores, ids_to_track, end_step_ns, frame_num, time_point, remove_ground=False
+    )
+subdirs = ['3d', '2d_proj_1', '2d_proj_2']
 for subdir in subdirs:
     subdir_path = os.path.join(output_dir, subdir)
     write_gif_from_folder(subdir_path, output_dir, file_name=f'{subdir}.gif')
-
-
