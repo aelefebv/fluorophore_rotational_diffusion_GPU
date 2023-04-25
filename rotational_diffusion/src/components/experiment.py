@@ -14,6 +14,7 @@ class MoleculeProperties:
         self.molecule = molecule
         self.num_molecules = num_molecules
         self.rotational_diffusion_time = rotational_diffusion_time
+        self.rotational_diffusion_time_unpied = self.rotational_diffusion_time / np.pi
         self.fluorophore = self.molecule(self.rotational_diffusion_time)
 
         if triplet:
@@ -64,9 +65,11 @@ class Experiment:
         self.molecule = molecule_properties.molecule
         self.num_molecules = molecule_properties.num_molecules
         self.rotational_diffusion_time_ns = molecule_properties.rotational_diffusion_time  # not pi adjusted
+        self.rotational_diffusion_time_ns_unpied = molecule_properties.rotational_diffusion_time / np.pi  # pi adjusted
 
         # collection properties
         self.collection_time_point_ns = collection_time_point_ns
+        self.collection_time_point_us = collection_time_point_ns / 1000
         self.repetitions = repetitions
 
         self.excitation_scheme = excitation_scheme
@@ -112,6 +115,11 @@ class Experiment:
         attr_values = []
         for value in list(attributes.values()):
             attr_values.append(value)
+
+        # check if the directory exists
+        if not os.path.exists(os.path.dirname(csv_path)):
+            # make the directory
+            os.makedirs(os.path.dirname(csv_path))
 
         # Check if the file exists
         if not os.path.exists(csv_path):
@@ -163,7 +171,7 @@ def run_experiment(molecule_props, excitation_props,
                 ratios[collection_time[0]] = []
             ratios[collection_time[0]].append(
                 experiments[collection_time[0]].get_detector_counts(
-                    molecule_properties.fluorophores,
+                    molecule_props.fluorophores,
                     'singlet', 'ground',
                     collection_time[1:],
                 )
@@ -175,23 +183,27 @@ def run_experiment(molecule_props, excitation_props,
 
 
 def run_multi_variable():
-    # rotational_diffusion_times = [150000, 250000]
-    rotational_diffusion_times = np.logspace(4, 8, num=20).tolist()
+    # Note that diffusion times are always multiplied by pi!
+    # rotational_diffusion_times = [2500, 25000, 250000]  # for EGFR
+    rotational_diffusion_times = [4630, 15640, 72400, 579200]  # for beads
+    # rotational_diffusion_times = [2500, 250000]
+    # rotational_diffusion_times = np.logspace(4, 8, num=20).tolist()
     # rotational_diffusion_times = np.logspace(4, 8, num=50)
     # rotational_diffusion_times = range(10_000, 100_000_000, 1000)
     # collection_times_exp = [400000, 1500000]
-    collection_times_exp = np.logspace(3, 5, num=20).tolist()
+    collection_times_exp = np.linspace(1, 1E6, num=100).tolist()
+    # collection_times_exp = np.logspace(0, 4, num=100).tolist()
     # collection_times_exp = np.logspace(3, 5, num=20)
     # collection_times_exp = range(1_000, 100_000, 5_000)
-    # crescent_intensities = [0]
-    crescent_intensities = np.logspace(-3, 2, num=10, base=2).tolist()
-    singlet_intensities = [0.1, 0.5, 1, 2, 3]
-    csv_path = r'C:\Users\austin\GitHub\Rotational_diffusion-AELxJLD\rotational_diffusion\data\circular_polarization.csv'
+    crescent_intensities = [2, 4, 8]
+    # crescent_intensities = np.logspace(-3, 2, num=10, base=2).tolist()
+    singlet_intensities = [2]
+    # singlet_intensities = [0.1, 0.5, 1, 2, 3]
+    csv_path = r'C:\Users\austin\GitHub\Rotational_diffusion-AELxJLD\rotational_diffusion\data\20230411_beads.csv'
     # csv_path = r'C:\Users\austin\GitHub\Rotational_diffusion-AELxJLD\rotational_diffusion\data\running_data.csv'
     for sing_num, singlet_intensity in enumerate(singlet_intensities):
         for cres_num, crescent_intensity in enumerate(crescent_intensities):
             for rot_num, rotational_diffusion_time in enumerate(rotational_diffusion_times):
-                num_experiments = len(collection_times_exp)
                 for experiment_num, collection_time_exp in enumerate(collection_times_exp):
                     collection_time_exp = int(collection_time_exp)
                     logger.info(f'Experiment {experiment_num} of {len(collection_times_exp)}, '
@@ -206,8 +218,8 @@ def run_multi_variable():
                     excitation_properties = ExcitationProperties(
                         singlet_polarization=(0, 1, 0), singlet_intensity=singlet_intensity,
                         crescent_polarization=(1, 0, 0), crescent_intensity=crescent_intensity,
-                        trigger_polarization='circular', trigger_intensity=0.01,
-                        num_triggers=30,
+                        trigger_polarization=(1, 0, 0), trigger_intensity=0.25,
+                        num_triggers=1,
                     )
                     experiments = run_experiment(
                         molecule_properties, excitation_properties,
@@ -229,21 +241,21 @@ def run_multi_variable():
 
 
 if __name__ == "__main__":
-    # run_multi_variable()
-    molecule_properties = MoleculeProperties(
-        molecule=variables.molecule_properties.mScarlet,
-        num_molecules=2E07,
-        rotational_diffusion_time=100000 * np.pi,
-    )
-    excitation_properties = ExcitationProperties(
-        singlet_polarization=(0, 1, 0), singlet_intensity=3,
-        crescent_polarization=(1, 0, 0), crescent_intensity=0,
-        trigger_polarization=(1, 0, 0), trigger_intensity=3,
-        num_triggers=30,
-    )
-    experiments = run_experiment(
-        molecule_properties, excitation_properties,
-        collection_time_point_ns=collection_time_exp,
-        repetitions=50,
-        excitation_scheme=variables.excitation_schemes.pump_probe2,
-    )
+    run_multi_variable()
+    # molecule_properties = MoleculeProperties(
+    #     molecule=variables.molecule_properties.mScarlet,
+    #     num_molecules=2E07,
+    #     rotational_diffusion_time=100000 * np.pi,
+    # )
+    # excitation_properties = ExcitationProperties(
+    #     singlet_polarization=(0, 1, 0), singlet_intensity=3,
+    #     crescent_polarization=(1, 0, 0), crescent_intensity=0,
+    #     trigger_polarization=(1, 0, 0), trigger_intensity=3,
+    #     num_triggers=30,
+    # )
+    # experiments = run_experiment(
+    #     molecule_properties, excitation_properties,
+    #     collection_time_point_ns=collection_time_exp,
+    #     repetitions=50,
+    #     excitation_scheme=variables.excitation_schemes.pump_probe2,
+    # )

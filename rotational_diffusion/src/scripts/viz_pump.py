@@ -20,7 +20,8 @@ def save_frame(fluorophores, ids,
                anim_frame_num=None,
                projection_type='3d',
                view_angle=(25, -8),
-               subdir_name='3d'):
+               subdir_name='3d',
+               time=None):
 
     alpha_0 = 0.01
     alpha_1 = 0.5
@@ -53,6 +54,20 @@ def save_frame(fluorophores, ids,
         ax.set_xlim(-1.1, 1.1)
         ax.set_ylim(-1.1, 1.1)
         ax.set_zlim(-1.1, 1.1)
+        # Hide X and Y axes label marks
+        ax.set_xticklabels([])
+        ax.set_yticklabels([])
+        ax.set_zticklabels([])
+
+        # Hide X and Y axes tick marks
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.set_zticks([])
+
+        if time is not None:
+            formatted_time = f"{(time/1000):0>3.3f}us"
+            print(formatted_time)
+            ax.set_title(formatted_time)
     elif projection_type == 'aitoff':
         ax = fig.add_subplot(111, projection='aitoff')
         plot_states = states_vec == 0  # ground
@@ -121,13 +136,16 @@ def time_evolve_and_save_frames(fluorophores, ids, time_step_ns,
     if remove_ground:
         fluorophores.delete_fluorophores_in_state('ground')
     save_frame(fluorophores, ids,
-               save=True, filepath=output_dir, anim_frame_num=current_frame_num)
+               save=True, filepath=output_dir, anim_frame_num=current_frame_num, time=current_time_point)
     save_frame(fluorophores, ids,
                save=True, filepath=output_dir, anim_frame_num=current_frame_num,
-               view_angle=(0, 0), subdir_name='2d_proj_1')
+               view_angle=(0, 0), subdir_name='2d_proj_1', time=current_time_point)
     save_frame(fluorophores, ids,
                save=True, filepath=output_dir, anim_frame_num=current_frame_num,
-               view_angle=(0, 90), subdir_name='2d_proj_2')
+               view_angle=(0, 90), subdir_name='2d_proj_2', time=current_time_point)
+    save_frame(fluorophores, ids,
+               save=True, filepath=output_dir, anim_frame_num=current_frame_num,
+               view_angle=(90, 0), subdir_name='2d_proj_3', time=current_time_point)
     return current_frame_num, current_time_point
 
 
@@ -148,7 +166,7 @@ os.makedirs(output_dir)
 molecule_properties = components.experiment.MoleculeProperties(
     molecule=variables.molecule_properties.mScarlet,
     num_molecules=num_molecules,
-    rotational_diffusion_time=10000 * np.pi,
+    rotational_diffusion_time=2500 * np.pi,
 )
 excitation_properties = components.experiment.ExcitationProperties(
     singlet_polarization=(0, 1, 0), singlet_intensity=2,
@@ -208,7 +226,10 @@ for _ in range(500):
     frame_num, time_point = time_evolve_and_save_frames(
         molecule_properties.fluorophores, ids_to_track, end_step_ns, frame_num, time_point, remove_ground=False
     )
-subdirs = ['3d', '2d_proj_1', '2d_proj_2']
+subdirs = ['3d', '2d_proj_1', '2d_proj_2', '2d_proj_3']
 for subdir in subdirs:
     subdir_path = os.path.join(output_dir, subdir)
     write_gif_from_folder(subdir_path, output_dir, file_name=f'{subdir}.gif')
+
+
+# todo save parameters (or entire code) used for each run in a text file

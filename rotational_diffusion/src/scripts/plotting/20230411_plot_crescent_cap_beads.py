@@ -9,7 +9,7 @@ df = pd.read_csv(csv_path)
 grouped = df.groupby(["crescent_intensity", "rotational_diffusion_time_ns_unpied"])
 
 # Create a grid of subplots based on the number of "crescent_intensity" groups
-fig, axs = plt.subplots(nrows=len(df["crescent_intensity"].unique()), ncols=1, sharex=True, figsize=(6, 10))
+fig, axs = plt.subplots(nrows=len(df["crescent_intensity"].unique()), ncols=1, sharex=True, figsize=(6, 14))
 
 # Set the color cycle for different "rotational_diffusion_time_us" values
 color_cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
@@ -31,7 +31,7 @@ for i, (name, group) in enumerate(grouped):
     ax.legend()
 
     # Plot a rolling average line between the data points
-    rolling_mean = group["ratio_xy_mean"].rolling(window=10, min_periods=1, center=True).mean()
+    rolling_mean = group["ratio_xy_mean"].rolling(window=2, min_periods=1, center=True).mean()
     ax.plot(group["collection_time_point_us"], rolling_mean, color=color_cycle[i % num_unique_rdt])
 
 
