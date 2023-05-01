@@ -5,16 +5,17 @@ import matplotlib.pyplot as plt
 import datetime
 
 
-top_path = os.path.join('rotational_diffusion', 'get_figures', 'simulation_factor10')
-csv_path = os.path.join(top_path, 'data', '20230425_170940_factor10.csv')
+top_path = os.path.join('rotational_diffusion', 'get_figures', 'simulation_4beads')
+csv_path = os.path.join(top_path, 'data', '20230425_170924_beads.csv')
 # Load the CSV data into a pandas dataframe
 df = pd.read_csv(csv_path)
 
 # Group the data by "rotational_diffusion_time_us_unpied"
-grouped = df.groupby( "rotational_diffusion_time_ns_unpied")
+grouped = df.groupby("rotational_diffusion_time_ns_unpied")
+group_names = ['40nm', '60nm', '100nm', '200nm']
 
 # create a plot
-fig, ax = plt.subplots(nrows=1, ncols=1, sharex=True, figsize=(6*1.618, 6))
+fig, ax = plt.subplots(nrows=1, ncols=1, sharex=True, figsize=(7, 6))
 
 # Set the color cycle for different "rotational_diffusion_time_us" values
 color_cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
@@ -26,7 +27,7 @@ num_unique_rdt = len(df["rotational_diffusion_time_ns_unpied"].unique())
 for i, (name, group) in enumerate(grouped):
     rotational_diffusion_time_us = name
     ax.errorbar(group["collection_time_point_us"], group["ratio_xy_mean"], yerr=group["ratio_xy_std"],
-                label=f"{rotational_diffusion_time_us} ns", fmt='o', color=color_cycle[i % num_unique_rdt],
+                label=f"{group_names[i]} bead", fmt='o', color=color_cycle[i % num_unique_rdt],
                 alpha=0.2)
     ax.set_ylabel(f"XY Ratio")
     ax.legend()
@@ -52,4 +53,4 @@ now = datetime.datetime.now()
 now = now.strftime("%Y%m%d_%H%M%S")
 
 # save the figure
-fig.savefig(os.path.join(top_path, 'plots', f'{now}_factor10.png'), dpi=300, bbox_inches='tight')
+fig.savefig(os.path.join(top_path, 'plots', f'{now}_beads.png'), dpi=300, bbox_inches='tight')

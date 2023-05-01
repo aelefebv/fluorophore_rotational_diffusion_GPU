@@ -61,3 +61,12 @@ class rsEGFP2:
     singlet_lifetime_ns: float = 5E05
     singlet_quantum_yield: float = 0.35
     rotational_diffusion_time_ns: float = 1E05 * np.pi  # figure S5 Ilaria's
+
+
+@dataclass
+class Venus:
+    rotational_diffusion_time_ns: float  # 1.6E05 * np.pi?
+    singlet_lifetime_ns: float = 2
+    triplet_lifetime_ns: float = 1E06
+    singlet_quantum_yield: float = 0.70
+    triplet_quantum_yield: float = 0.01
