@@ -18,7 +18,7 @@ trigger_polarization = (1, 0, 0)
 number_of_triggers = 1
 
 ## Experimental multi-variables
-beads_nm = {'monomer': 250, 'dimer': 500, '100': 72400, '200': 579200}  # these get multiplied by pi during the simulation
+beads_nm = {'monomer': 250, 'dimer': 500}  # these get multiplied by pi during the simulation
 rotational_diffusion_times = list(beads_nm.values())
 collection_times_ns = np.linspace(50, 5000, num=100).tolist()
 crescent_intensities = [0]

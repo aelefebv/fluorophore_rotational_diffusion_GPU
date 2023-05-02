@@ -12,6 +12,8 @@ df = pd.read_csv(csv_path)
 
 # Group the data by "rotational_diffusion_time_us_unpied"
 grouped = df.groupby("rotational_diffusion_time_ns_unpied")
+# only get first two groups
+grouped = list(grouped)[:2]
 group_names = ['monomer', 'dimer']
 
 # create a plot
@@ -25,9 +27,10 @@ num_unique_rdt = len(df["rotational_diffusion_time_ns_unpied"].unique())
 
 # Plot each group on the same subplot as a scatter plot with y error bars and different colors for each group
 for i, (name, group) in enumerate(grouped):
+    group = group[:-40]
     rotational_diffusion_time_us = name
     ax.errorbar(group["collection_time_point_us"], group["ratio_xy_mean"], yerr=group["ratio_xy_std"],
-                label=f"{group_names[i]} bead", fmt='o', color=color_cycle[i % num_unique_rdt],
+                label=f"{group_names[i]}", fmt='o', color=color_cycle[i % num_unique_rdt],
                 alpha=0.2)
     ax.set_ylabel(f"XY Ratio")
     ax.legend()
@@ -53,4 +56,4 @@ now = datetime.datetime.now()
 now = now.strftime("%Y%m%d_%H%M%S")
 
 # save the figure
-fig.savefig(os.path.join(top_path, 'plots', f'{now}_beads.png'), dpi=300, bbox_inches='tight')
+fig.savefig(os.path.join(top_path, 'plots', f'{now}_dimerization.png'), dpi=300, bbox_inches='tight')

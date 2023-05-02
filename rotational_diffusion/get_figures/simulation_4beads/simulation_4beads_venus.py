@@ -10,7 +10,7 @@ NUM_MOLECULES = 2E07  # Decrease = faster, noisier
 EXPERIMENTAL_REPETITIONS = 50  # Decrease = faster, noisier
 
 # Experimental solo variables
-fluorophore = molecule_properties.mScarlet
+fluorophore = molecule_properties.Venus
 triplet_trigger_intensity = 0.25
 singlet_polarization = (0, 1, 0)
 crescent_polarization = (1, 0, 0)
@@ -18,15 +18,16 @@ trigger_polarization = (1, 0, 0)
 number_of_triggers = 1
 
 ## Experimental multi-variables
+# 100 nm bead rotational diffusion time is from STARSS paper. The rest are relative to that.
 beads_nm = {'40': 4630, '60': 15640, '100': 72400, '200': 579200}  # these get multiplied by pi during the simulation
 rotational_diffusion_times = list(beads_nm.values())
 collection_times_ns = np.linspace(10000, 1E6, num=100).tolist()
-crescent_intensities = [0, 1, 2, 4, 8]
+crescent_intensities = [0]
 singlet_intensities = [2]
 
 # For saving
 datetime = time.strftime('%Y%m%d_%H%M%S')
-csv_subdir_path = os.path.join('data', f'{datetime}_crescent_beads.csv')
+csv_subdir_path = os.path.join('data', f'{datetime}_venus_beads.csv')
 csv_path = os.path.join(os.path.dirname(__file__), csv_subdir_path)
 
 # Run the multi-variate simulation
