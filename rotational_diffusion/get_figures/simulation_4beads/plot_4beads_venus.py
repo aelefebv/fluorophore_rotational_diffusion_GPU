@@ -6,7 +6,7 @@ import datetime
 
 
 top_path = os.path.join('rotational_diffusion', 'get_figures', 'simulation_4beads')
-csv_path = os.path.join(top_path, 'data', '20230425_170924_beads.csv')
+csv_path = os.path.join(top_path, 'data', '20230501_163739_venus_beads.csv')
 # Load the CSV data into a pandas dataframe
 df = pd.read_csv(csv_path)
 

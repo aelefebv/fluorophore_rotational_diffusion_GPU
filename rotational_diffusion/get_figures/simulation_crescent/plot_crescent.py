@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 top_path = os.path.join('rotational_diffusion', 'get_figures', 'simulation_crescent')
-csv_path = os.path.join(top_path, 'data', '20230425_171122_crescent_beads.csv')
+csv_path = os.path.join(top_path, 'data', '20230501_164212_crescent_beads.csv')
 # Load the CSV data into a pandas dataframe
 df = pd.read_csv(csv_path)
 
@@ -35,7 +35,7 @@ for i, (name, group) in enumerate(grouped):
                 alpha=0.2)
     ax.set_ylabel(f"XY Ratio, bead size: {group_names[rotational_diffusion_time_us]}")
     print(rotational_diffusion_time_us)
-    ax.legend()
+    ax.legend(loc='lower right')
 
     # Plot a rolling average line between the data points
     rolling_mean = group["ratio_xy_mean"].rolling(window=2, min_periods=1, center=True).mean()
