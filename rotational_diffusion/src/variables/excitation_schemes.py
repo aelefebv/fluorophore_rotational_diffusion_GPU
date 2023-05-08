@@ -296,3 +296,61 @@ def capture_phosphorescence_decay(fluorophores, collection_time_point, excitatio
 
     return 1, 0, total_run_time
 
+
+def cw(fluorophores, excitation_properties, collection_time_point = 5e6,
+       singlet_decay_len_ns=25):
+    # excite to singlet hard, let it decay to triplet/ground. every N ns pulse with circular light softly,
+    # check counts in both detectors. Could have output be a list of collection start and end times,
+    # each corresponding to a count. i.e., would want to see "if we pulsed every N ns, with M molecules and I intensity, how many counts / what SNR do we get on the Pth pulse
+    # therefore we need to add on a "pulse number" metric. That way we can compare SNR at the specific pulse number
+
+    total_run_time = 0
+
+    # excite molecules to singlet state
+    fluorophores.phototransition(
+        'ground', 'singlet',
+        intensity=excitation_properties.singlet_intensity,
+        polarization_xyz=excitation_properties.singlet_polarization,
+    )
+
+    # let excited molecules go to ground or triplet
+    fluorophores.time_evolve(singlet_decay_len_ns)
+    total_run_time += singlet_decay_len_ns
+
+    # print(sum(fluorophores.states[fluorophores.states == 0]))
+    # fluorophores.num_triplets =
+    num_triplets_start = np.count_nonzero(fluorophores.states == 1)
+    num_triplets = num_triplets_start
+
+
+    collection_time_points = []
+    trigger_num = 0
+
+    collection_start_time = total_run_time
+    while (num_triplets != 0) and (total_run_time < collection_time_point):
+
+        fluorophores.delete_fluorophores_in_state('ground')
+
+        # circular trigger?
+        fluorophores.phototransition(
+            'triplet', 'singlet',
+            intensity=excitation_properties.trigger_intensity,
+            polarization_xyz=(1, 0, 0)
+        )
+        fluorophores.phototransition(
+            'triplet', 'singlet',
+            intensity=excitation_properties.trigger_intensity,
+            polarization_xyz=(0, 1, 0)
+        )
+
+        fluorophores.time_evolve(excitation_properties.cw_delay)
+        total_run_time += excitation_properties.cw_delay
+
+        num_triplets = np.count_nonzero(fluorophores.states == 1)
+        print('Triplets remaining: ', num_triplets)
+
+    collection_end_time = total_run_time
+    collection_time_points.append((1, collection_start_time, collection_end_time))
+    fluorophores.delete_fluorophores_in_state('ground')
+
+    return collection_time_points

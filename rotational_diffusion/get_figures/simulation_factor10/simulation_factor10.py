@@ -7,7 +7,7 @@ import os
 
 ## User variables
 NUM_MOLECULES = 2E07  # Decrease = faster, noisier
-EXPERIMENTAL_REPETITIONS = 50  # Decrease = faster, noisier
+EXPERIMENTAL_REPETITIONS = 5  # Decrease = faster, noisier
 
 # Experimental solo variables
 fluorophore = molecule_properties.mScarlet

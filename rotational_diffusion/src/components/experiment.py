@@ -1,3 +1,4 @@
+import copy
 import csv
 import os
 
@@ -37,7 +38,7 @@ class ExcitationProperties:
     def __init__(self, singlet_polarization, singlet_intensity,
                  crescent_polarization, crescent_intensity,
                  trigger_polarization, trigger_intensity,
-                 num_triggers):
+                 num_triggers, cw_delay=None):
 
         self.singlet_polarization = singlet_polarization
         self.singlet_intensity = singlet_intensity
@@ -49,6 +50,8 @@ class ExcitationProperties:
         self.trigger_intensity = trigger_intensity
 
         self.num_triggers = num_triggers
+
+        self.cw_delay = cw_delay
 
 
 class Experiment:
@@ -88,8 +91,11 @@ class Experiment:
         # outputs
         self.num_x = 0
         self.num_y = 0
+        self.total_num = 0
         self.ratio_xy_mean = None
         self.ratio_xy_std = None
+        self.calculated_lifetime_mean = None
+        self.calculated_lifetime_std = None
 
         self.datetime = datetime.now().strftime("%Y%m%d%H%M%S")
 
@@ -104,6 +110,7 @@ class Experiment:
         t_x_temp, t_y_temp = utils.general.split_counts_xy(x_collection, y_collection, t_collection)
         self.num_x += len(t_x_temp)
         self.num_y += len(t_y_temp)
+        self.total_num += len(t_collection)
         if (len(t_x_temp) > 0) and (len(t_y_temp) > 0):
             ratio_xy = len(t_x_temp) / len(t_y_temp)
         elif len(t_x_temp) > 0:
@@ -114,6 +121,17 @@ class Experiment:
             return ratio_xy, t_collection
         else:
             return ratio_xy
+
+    def calculate_lifetime(self, fluorophores, from_state, to_state, collection_times):
+        _, _, _, t, = fluorophores.get_xyzt_at_transitions(from_state, to_state)
+        t_collection = t[(t >= collection_times[0]) & (t <= collection_times[1])]
+        detection_events = len(t_collection)
+        if detection_events < 1:
+            return np.nan
+        t_collection.sort()
+        calculated_lifetime = t_collection[int(np.rint(detection_events / np.e))]
+        return calculated_lifetime
+
 
     def add_attributes(self, attributes):
         for attribute in attributes:
@@ -154,18 +172,22 @@ def run_experiment(molecule_props, excitation_props,
                    repetitions,
                    excitation_scheme,
                    phosphorescence_collection=False,
+                   trigger_collection = False,
                    ):
     experiments = {}
     ratios = {}
+    calculated_lifetimes = {}
     count_times = {}
     for rep_num in range(repetitions):
+        # duplicate molecule props
+        og_molecule_props = copy.deepcopy(molecule_props)
 
         rep_percentage = round(rep_num / repetitions * 100)
         if rep_percentage % 25 == 0:
             logger.info(f'Experiment repetitions: {int((rep_num / repetitions) * 100)}%')
 
         collection_times = excitation_scheme(
-            fluorophores=molecule_props.fluorophores,
+            fluorophores=og_molecule_props.fluorophores,
             collection_time_point=collection_time_point_ns,
             excitation_properties=excitation_props,
         )
@@ -173,7 +195,7 @@ def run_experiment(molecule_props, excitation_props,
             collection_times = [collection_times]
         for collection_time in collection_times:
             if collection_time[0] not in experiments:
-                experiments[collection_time[0]] = Experiment(molecule_properties=molecule_props,
+                experiments[collection_time[0]] = Experiment(molecule_properties=og_molecule_props,
                                                              excitation_properties=excitation_props,
                                                              collection_time_point_ns=collection_time_point_ns,
                                                              repetitions=repetitions,
@@ -182,26 +204,50 @@ def run_experiment(molecule_props, excitation_props,
                                                              collection_start_time=collection_time[1])
             if collection_time[0] not in ratios:
                 ratios[collection_time[0]] = []
+            if collection_time[0] not in calculated_lifetimes:
+                calculated_lifetimes[collection_time[0]] = []
             if phosphorescence_collection:
                 output = experiments[collection_time[0]].get_detector_counts(
-                    molecule_props.fluorophores,
+                    og_molecule_props.fluorophores,
                     'triplet', 'ground',
                     collection_time[1:],
                     # get_time=True,
                 )
                 ratios[collection_time[0]].append(output)
                 # count_times[collection_time[0]].append(output[1])
-            else:
-                ratios[collection_time[0]].append(
-                    experiments[collection_time[0]].get_detector_counts(
-                        molecule_props.fluorophores,
-                        'singlet', 'ground',
-                        collection_time[1:],
-                    )
+            elif trigger_collection:
+                output = experiments[collection_time[0]].get_detector_counts(
+                    og_molecule_props.fluorophores,
+                    'triplet', 'singlet',
+                    collection_time[1:],
+                    # get_time=True,
                 )
-    for trigger_number in ratios:
-        experiments[trigger_number].ratio_xy_mean = np.nanmean(np.array(ratios[trigger_number]))
-        experiments[trigger_number].ratio_xy_std = np.nanstd(np.array(ratios[trigger_number]))
+                ratios[collection_time[0]].append(output)
+
+            else:
+                ratio_output = experiments[collection_time[0]].get_detector_counts(
+                    og_molecule_props.fluorophores,
+                    'singlet', 'ground',
+                    collection_time[1:],
+                )
+                ratios[collection_time[0]].append(ratio_output)
+                lifetime_output = experiments[collection_time[0]].calculate_lifetime(
+                    og_molecule_props.fluorophores,
+                    'singlet', 'ground',
+                    collection_time[1:],
+                )
+                calculated_lifetimes[collection_time[0]].append(lifetime_output)
+    for rep_number in ratios:
+        experiments[rep_number].ratio_xy_mean = np.nanmean(np.array(ratios[rep_number]))
+        experiments[rep_number].ratio_xy_std = np.nanstd(np.array(ratios[rep_number]))
+        # if calculated_lifetimes has been calculated at the rep number, then get mean and std, else skip
+        if rep_number not in calculated_lifetimes:
+            continue
+        # it its empty, skip
+        if not calculated_lifetimes[rep_number]:
+            continue
+        experiments[rep_number].calculated_lifetime_mean = np.nanmean(np.array(calculated_lifetimes[rep_number]))
+        experiments[rep_number].calculated_lifetime_std = np.nanstd(np.array(calculated_lifetimes[rep_number]))
         # if phosphorescence_collection:
         #     experiments[trigger_number].count_times = count_times[trigger_number]
 

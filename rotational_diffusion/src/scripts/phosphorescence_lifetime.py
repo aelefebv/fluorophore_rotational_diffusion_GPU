@@ -8,7 +8,7 @@ import os
 ## User variables
 NUM_MOLECULES = 2E07  # Decrease = faster, noisier
 # NUM_MOLECULES = 1E06  # Decrease = faster, noisier
-EXPERIMENTAL_REPETITIONS = 50  # Decrease = faster, noisier
+EXPERIMENTAL_REPETITIONS = 5  # Decrease = faster, noisier
 # EXPERIMENTAL_REPETITIONS = 1  # Decrease = faster, noisier
 
 # Experimental solo variables
@@ -25,7 +25,7 @@ collection_time = 5E6  # only collect at 5 ms
 
 ## Experimental multi-variables
 phosphorescence_lifetimes = [1E4, 2E4, 4E4, 8E4, 16E4, 32E4, 64E4, 128E4]
-beads_nm = {'50': 9050, '100': 72400, '200': 579200}  # these get multiplied by pi during the simulation
+beads_nm = {'50': 14158, '100': 113263, '200': 906106}  # these get multiplied by pi during the simulation
 rotational_diffusion_times = list(beads_nm.values())
 
 # For saving
