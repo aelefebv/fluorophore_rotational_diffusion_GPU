@@ -210,7 +210,7 @@ def gentle_check(fluorophores, collection_time_point, excitation_properties,
 
     total_run_time = 0
 
-    # excite molecules to ground state
+    # excite molecules to singlet state
     fluorophores.phototransition(
         'ground', 'singlet',
         intensity=excitation_properties.singlet_intensity,
@@ -267,3 +267,32 @@ def gentle_check(fluorophores, collection_time_point, excitation_properties,
 
         collection_time_points.append((trigger_num+1, collection_start_time, collection_end_time))
     return collection_time_points
+
+
+def capture_phosphorescence_decay(fluorophores, collection_time_point, excitation_properties,
+                                    singlet_decay_len_ns=25):
+    # excite to singlet hard, let it decay to triplet/ground. every N ns pulse with circular light softly,
+    # check counts in both detectors. Could have output be a list of collection start and end times,
+    # each corresponding to a count. i.e., would want to see "if we pulsed every N ns, with M molecules and I intensity, how many counts / what SNR do we get on the Pth pulse
+    # therefore we need to add on a "pulse number" metric. That way we can compare SNR at the specific pulse number
+
+    total_run_time = 0
+
+    # excite molecules to singlet state
+    fluorophores.phototransition(
+        'ground', 'singlet',
+        intensity=excitation_properties.singlet_intensity,
+        polarization_xyz=excitation_properties.singlet_polarization,
+    )
+    fluorophores.delete_fluorophores_in_state('ground')
+
+    # let singlets decay to ground or triplet, then get rid of ground to speed up simulation
+    fluorophores.time_evolve(singlet_decay_len_ns)
+    total_run_time += singlet_decay_len_ns
+    fluorophores.delete_fluorophores_in_state('ground')
+
+    fluorophores.time_evolve(collection_time_point)
+    total_run_time += collection_time_point
+
+    return 1, 0, total_run_time
+

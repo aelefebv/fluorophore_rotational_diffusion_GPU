@@ -10,12 +10,15 @@ from datetime import datetime
 
 
 class MoleculeProperties:
-    def __init__(self, molecule, num_molecules, rotational_diffusion_time, triplet=True):
+    def __init__(self, molecule, num_molecules, rotational_diffusion_time, triplet=True, phospho_lifetime=None):
         self.molecule = molecule
         self.num_molecules = num_molecules
         self.rotational_diffusion_time = rotational_diffusion_time
         self.rotational_diffusion_time_unpied = self.rotational_diffusion_time / np.pi
-        self.fluorophore = self.molecule(self.rotational_diffusion_time)
+        if phospho_lifetime is not None:
+            self.fluorophore = self.molecule(self.rotational_diffusion_time, triplet_lifetime_ns=phospho_lifetime)
+        else:
+            self.fluorophore = self.molecule(self.rotational_diffusion_time)
 
         if triplet:
             state_info_function = utils.state_info_creator.create_triplet_state_info
@@ -27,6 +30,7 @@ class MoleculeProperties:
             state_info=self.state_info,
             rot_diffusion_time=self.rotational_diffusion_time
         )
+        print(self.fluorophore.__dict__)
 
 
 class ExcitationProperties:
@@ -92,7 +96,7 @@ class Experiment:
         self.trigger_number = trigger_number
         self.collection_start_time = collection_start_time
 
-    def get_detector_counts(self, fluorophores, from_state, to_state, collection_times):
+    def get_detector_counts(self, fluorophores, from_state, to_state, collection_times, get_time=False):
         x, y, _, t, = fluorophores.get_xyzt_at_transitions(from_state, to_state)
         t_collection = t[(t >= collection_times[0]) & (t <= collection_times[1])]
         x_collection = x[(t >= collection_times[0]) & (t <= collection_times[1])]
@@ -106,7 +110,14 @@ class Experiment:
             ratio_xy = 0
         else:
             ratio_xy = np.nan
-        return ratio_xy
+        if get_time:
+            return ratio_xy, t_collection
+        else:
+            return ratio_xy
+
+    def add_attributes(self, attributes):
+        for attribute in attributes:
+            setattr(self, attribute, attributes[attribute])
 
     def csv_save(self, csv_path):
         # get the list of attributes
@@ -142,9 +153,11 @@ def run_experiment(molecule_props, excitation_props,
                    collection_time_point_ns,
                    repetitions,
                    excitation_scheme,
+                   phosphorescence_collection=False,
                    ):
     experiments = {}
     ratios = {}
+    count_times = {}
     for rep_num in range(repetitions):
 
         rep_percentage = round(rep_num / repetitions * 100)
@@ -169,16 +182,29 @@ def run_experiment(molecule_props, excitation_props,
                                                              collection_start_time=collection_time[1])
             if collection_time[0] not in ratios:
                 ratios[collection_time[0]] = []
-            ratios[collection_time[0]].append(
-                experiments[collection_time[0]].get_detector_counts(
+            if phosphorescence_collection:
+                output = experiments[collection_time[0]].get_detector_counts(
                     molecule_props.fluorophores,
-                    'singlet', 'ground',
+                    'triplet', 'ground',
                     collection_time[1:],
+                    # get_time=True,
                 )
-            )
+                ratios[collection_time[0]].append(output)
+                # count_times[collection_time[0]].append(output[1])
+            else:
+                ratios[collection_time[0]].append(
+                    experiments[collection_time[0]].get_detector_counts(
+                        molecule_props.fluorophores,
+                        'singlet', 'ground',
+                        collection_time[1:],
+                    )
+                )
     for trigger_number in ratios:
         experiments[trigger_number].ratio_xy_mean = np.nanmean(np.array(ratios[trigger_number]))
         experiments[trigger_number].ratio_xy_std = np.nanstd(np.array(ratios[trigger_number]))
+        # if phosphorescence_collection:
+        #     experiments[trigger_number].count_times = count_times[trigger_number]
+
     return experiments
 
 
