@@ -7,7 +7,7 @@ import os
 
 ## User variables
 NUM_MOLECULES = 2E07  # Decrease = faster, noisier
-EXPERIMENTAL_REPETITIONS = 50  # Decrease = faster, noisier
+EXPERIMENTAL_REPETITIONS = 10  # Decrease = faster, noisier
 
 # Experimental solo variables
 fluorophore = molecule_properties.Venus
@@ -19,7 +19,7 @@ number_of_triggers = 1
 
 ## Experimental multi-variables
 # 100 nm bead rotational diffusion time is from STARSS paper. The rest are relative to that.
-beads_nm = {'40': 4630, '60': 15640, '100': 72400, '200': 579200}  # these get multiplied by pi during the simulation
+beads_nm = {'40': 7249, '60': 24465, '100': 113263, '200': 906106}  # these get multiplied by pi during the simulation
 rotational_diffusion_times = list(beads_nm.values())
 collection_times_ns = np.linspace(10000, 1E6, num=100).tolist()
 crescent_intensities = [0]

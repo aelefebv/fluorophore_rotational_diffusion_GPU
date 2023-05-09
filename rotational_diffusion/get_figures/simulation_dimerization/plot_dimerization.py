@@ -6,7 +6,7 @@ import datetime
 
 
 top_path = os.path.join('rotational_diffusion', 'get_figures', 'simulation_dimerization')
-csv_path = os.path.join(top_path, 'data', '20230425_171104_dimerization.csv')
+csv_path = os.path.join(top_path, 'data', '20230508_155135_dimerization.csv')
 # Load the CSV data into a pandas dataframe
 df = pd.read_csv(csv_path)
 

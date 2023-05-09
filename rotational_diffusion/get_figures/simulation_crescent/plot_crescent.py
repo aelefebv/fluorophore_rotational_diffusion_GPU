@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 top_path = os.path.join('rotational_diffusion', 'get_figures', 'simulation_crescent')
-csv_path = os.path.join(top_path, 'data', '20230501_164212_crescent_beads.csv')
+csv_path = os.path.join(top_path, 'data', '20230508_152725_crescent_beads.csv')
 # Load the CSV data into a pandas dataframe
 df = pd.read_csv(csv_path)
 
@@ -22,8 +22,7 @@ color_cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
 num_unique_rdt = len(df["rotational_diffusion_time_ns_unpied"].unique())
 num_unique_crescent = len(df["crescent_intensity"].unique())
 
-group_names = {4630.0: '40nm', 15640.0: '60nm', 72400.0: '100nm', 579200.0: '200nm'}
-
+group_names = {7249.0: '40nm', 24465.0: '60nm', 113263.0: '100nm', 906106.0: '200nm'}
 # Plot each group on a separate subplot as a scatter plot with y error bars
 
 for i, (name, group) in enumerate(grouped):
