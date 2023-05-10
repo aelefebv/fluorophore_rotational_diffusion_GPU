@@ -6,7 +6,7 @@ import time
 
 ## User variables
 NUM_MOLECULES = 1E06  # Decrease = faster, noisier
-beads_nm = {'40': 4630, '60': 15640, '100': 72400, '200': 579200}  # these get multiplied by pi during the simulation
+beads_nm = {'40': 7249, '60': 24465, '100': 113263, '200': 906106}  # these get multiplied by pi during the simulation
 chosen_bead_size = '100'
 
 # Experimental solo variables
@@ -16,7 +16,7 @@ singlet_polarization = (0, 1, 0)
 crescent_polarization = (1, 0, 0)
 trigger_polarization = (1, 0, 0)
 number_of_triggers = 1
-crescent_intensities = 0
+crescent_intensities = 4
 singlet_intensity = 2
 trigger_intensity = 0.25  # shouldn't actually affect anything.
 
