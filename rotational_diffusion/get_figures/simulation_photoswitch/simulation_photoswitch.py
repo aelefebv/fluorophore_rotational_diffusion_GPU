@@ -19,6 +19,8 @@ EXPERIMENTAL_REPETITIONS = 4        # default 4,        Decrease = faster, noisi
 @dataclass(frozen=True)  # for immutability and simplicity
 class rsEGFP2:
     singlet_lifetime_ns: float = 3
+    exc_to_off_state_probability: float = 0.02
+    exc_to_on_state_probability: float = 0.98
 
 
 ## Create excitation scheme
@@ -37,15 +39,15 @@ def run_photoswitch_scheme(fluorophores, on_properties, off_properties, collecti
         # Turn on the fluorophores
         fluorophores.phototransition(
             'off', 'on',
-            intensity = on_properties.intensity,
-            polarization_xyz = on_properties.polarization,
+            intensity=on_properties.intensity,
+            polarization_xyz=on_properties.polarization,
         )
 
         # Excite the on fluorophores
         fluorophores.phototransition(
             'on', 'excited',
-            intensity = off_properties.intensity,
-            polarization_xyz = off_properties.polarization,
+            intensity=off_properties.intensity,
+            polarization_xyz=off_properties.polarization,
         )
 
         # Let the singlets decay to off state
@@ -232,8 +234,9 @@ def run():
     off_state = fluorophore.ElectronicState('off')
     on_state = fluorophore.ElectronicState('on')
     # Excited state emits a photon then turns off, we assume it doesn't die
-    excited_transitions = ['off']
-    excited_transition_probabilities = [1]
+    excited_transitions = ['off', 'on']
+    excited_transition_probabilities = [fluorophore_molecule.exc_to_off_state_probability,
+                                        fluorophore_molecule.exc_to_on_state_probability]
     excited_state = fluorophore.ElectronicState(
         'excited',
         lifetime=fluorophore_molecule.singlet_lifetime_ns,

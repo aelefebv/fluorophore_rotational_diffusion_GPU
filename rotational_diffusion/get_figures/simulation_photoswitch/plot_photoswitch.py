@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt     # for the actual plotting
 
 ## User variables:
 CSV_NAME = None                 # default None,     specify a csv file name here to use instead of the latest
-ROLLING_AVERAGE_WINDOW = 1      # default 1,        increase for smoother rolling average
+ROLLING_AVERAGE_WINDOW = 1      # default 1,        increase for smoother rolling average, 1 is just connecting points
 PLOT_DPI = 300                  # default 300,      increase for higher resolution
 SHOW_PLOT = True                # default True,     set to False if you want to save the plot without showing it
 
