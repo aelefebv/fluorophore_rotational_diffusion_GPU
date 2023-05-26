@@ -5,7 +5,7 @@ import pandas as pd  # for opening csv files into a nice format for plotting
 import matplotlib.pyplot as plt  # for the actual plotting
 
 ## User variables:
-CSV_NAME = '20230524_162759_photoswitch.csv'
+# CSV_NAME = '20230524_162759_photoswitch.csv'
 ROLLING_AVERAGE_WINDOW = 1
 PLOT_DPI = 300
 SHOW_PLOT = True
@@ -13,6 +13,11 @@ SHOW_PLOT = True
 ## Load data:
 path_to_this_script = os.path.abspath(__file__)
 figure_dir = os.path.dirname(path_to_this_script)
+csv_dir = os.path.join(figure_dir, 'data')
+# find the latest csv file in the data directory
+csv_files = [f for f in os.listdir(csv_dir) if f.endswith('.csv')]
+csv_files.sort()
+CSV_NAME = csv_files[-1]
 csv_path = os.path.join(figure_dir, 'data', CSV_NAME)
 df = pd.read_csv(csv_path)
 
