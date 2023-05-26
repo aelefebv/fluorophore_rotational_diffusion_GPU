@@ -24,7 +24,7 @@ To replicate the data, figures, and animations from the paper, follow these step
   
 
 - CPU-based (slower for large simulations):
-  - option 1: `pip install -r requirements.txt`
+  - option 1 _(recommended)_: `pip install -r requirements.txt`
   - option 2: `pip install numpy pandas matplotlib`
 
 
@@ -34,7 +34,8 @@ To replicate the data, figures, and animations from the paper, follow these step
      - Windows: https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html
      - Linux: https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html
   2. Install required packages:
-       - `pip install numpy pandas matplotlib cupy-cuda12x`
+       - option 1 _(recommended)_: `pip install -r requirements.txt cupy-cuda12x` 
+       - option 2: `pip install numpy pandas matplotlib cupy-cuda12x`
          - Note: cupy-cuda12x is the latest version of cupy that supports CUDA 12.0, but you should install the latest version of cupy that supports your specific CUDA version.
 
 ## System Requirements:
