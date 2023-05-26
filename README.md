@@ -19,6 +19,10 @@ To replicate the data, figures, and animations from the paper, follow these step
 
 ## Setup:
 ### Packages:
+- Note: it's recommended but usually not required to use a clean virtual environment to install the packages below to avoid conflicts with other packages on your system.
+  - Learn more about virtual environments here: https://docs.python.org/3/tutorial/venv.html
+  
+
 - CPU-based (slow for large simulations):
   - option 1: `pip install -r requirements.txt`
   - option 2: `pip install numpy pandas matplotlib`
@@ -33,11 +37,12 @@ To replicate the data, figures, and animations from the paper, follow these step
        - option 2: `pip install numpy pandas matplotlib cupy-cuda12x`
          - Note: cupy-cuda12x is the latest version of cupy that supports CUDA 12.0, but you should install the latest version of cupy that supports your specific CUDA version.
 
-## Requirements:
+## System Requirements:
 Everything in this repo has only been tested on the following:
 - python 3.10 
   - Mac 
   - Windows
     - CPU
     - GPU
+  - (It probably also works on Linux for both CPU and GPU)
 
