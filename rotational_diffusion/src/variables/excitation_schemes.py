@@ -299,11 +299,6 @@ def capture_phosphorescence_decay(fluorophores, collection_time_point, excitatio
 
 def cw(fluorophores, excitation_properties, collection_time_point = 5e6,
        singlet_decay_len_ns=25):
-    # excite to singlet hard, let it decay to triplet/ground. every N ns pulse with circular light softly,
-    # check counts in both detectors. Could have output be a list of collection start and end times,
-    # each corresponding to a count. i.e., would want to see "if we pulsed every N ns, with M molecules and I intensity, how many counts / what SNR do we get on the Pth pulse
-    # therefore we need to add on a "pulse number" metric. That way we can compare SNR at the specific pulse number
-
     total_run_time = 0
 
     # excite molecules to singlet state
@@ -353,4 +348,73 @@ def cw(fluorophores, excitation_properties, collection_time_point = 5e6,
     collection_time_points.append((1, collection_start_time, collection_end_time))
     fluorophores.delete_fluorophores_in_state('ground')
 
+    return collection_time_points
+
+
+def photobleach(fluorophores, excitation_properties, collection_time_point = None, pulse_freq_hz=None,
+                collection_time_ns=5000):
+    # excite to singlet continously, some will bleach, others will rotationally diffuse in, etc.
+    total_run_time = 0
+
+    # close enough to continuous
+    period_ns = 10
+    reps = int(np.floor(collection_time_ns / period_ns))
+
+    collection_time_points = []
+
+    collection_start_time = total_run_time
+    for rep_num in range(reps):
+
+        fluorophores.delete_fluorophores_in_state('bleached')
+
+        # excite molecules to singlet state
+        fluorophores.phototransition(
+            'ground', 'singlet',
+            intensity=excitation_properties.singlet_intensity,
+            polarization_xyz=excitation_properties.singlet_polarization,
+        )
+
+        # let singlets decay to ground
+        fluorophores.time_evolve(period_ns)
+        total_run_time += period_ns
+    collection_end_time = total_run_time
+    collection_time_points.append((1, collection_start_time, collection_end_time))
+    return collection_time_points
+
+
+def photoswitch(fluorophores, excitation_properties, collection_time_point = None, pulse_freq_hz=None,
+                collection_time_ns=5000):
+    # excite to singlet continously, some will bleach, others will rotationally diffuse in, etc.
+    total_run_time = 0
+
+    # excite molecules from off to on state
+    fluorophores.phototransition(
+        'on', 'singlet',
+        intensity=excitation_properties.singlet_intensity,
+        polarization_xyz=excitation_properties.singlet_polarization,
+    )
+
+    # close enough to continuous
+    period_ns = 10
+    reps = int(np.floor(collection_time_ns / period_ns))
+
+    collection_time_points = []
+
+    collection_start_time = total_run_time
+    for rep_num in range(reps):
+
+        fluorophores.delete_fluorophores_in_state('bleached')
+
+        # excite molecules to singlet state
+        fluorophores.phototransition(
+            'ground', 'singlet',
+            intensity=excitation_properties.singlet_intensity,
+            polarization_xyz=excitation_properties.singlet_polarization,
+        )
+
+        # let singlets decay to ground
+        fluorophores.time_evolve(period_ns)
+        total_run_time += period_ns
+    collection_end_time = total_run_time
+    collection_time_points.append((1, collection_start_time, collection_end_time))
     return collection_time_points

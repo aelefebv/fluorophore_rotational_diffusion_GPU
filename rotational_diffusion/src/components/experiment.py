@@ -11,11 +11,14 @@ from datetime import datetime
 
 
 class MoleculeProperties:
-    def __init__(self, molecule, num_molecules, rotational_diffusion_time, triplet=True, phospho_lifetime=None):
+    def __init__(self, molecule, num_molecules, rotational_diffusion_time,
+                 triplet=True, phospho_lifetime=None, photobleach=False, photobleach_rate=0.05):
+        # todo takes in state_info parameter?
         self.molecule = molecule
         self.num_molecules = num_molecules
         self.rotational_diffusion_time = rotational_diffusion_time
         self.rotational_diffusion_time_unpied = self.rotational_diffusion_time / np.pi
+        self.bleach_rate = photobleach_rate
         if phospho_lifetime is not None:
             self.fluorophore = self.molecule(self.rotational_diffusion_time, triplet_lifetime_ns=phospho_lifetime)
         else:
@@ -25,7 +28,9 @@ class MoleculeProperties:
             state_info_function = utils.state_info_creator.create_triplet_state_info
         else:
             state_info_function = utils.state_info_creator.create_singlet_state_info
-        self.state_info = state_info_function(self.fluorophore)
+        self.state_info = state_info_function(self.fluorophore,
+                                              photobleach=photobleach,
+                                              bleach_rate=photobleach_rate)
         self.fluorophores = components.fluorophore.FluorophoreCollection(
             num_molecules=self.num_molecules,
             state_info=self.state_info,
@@ -35,10 +40,10 @@ class MoleculeProperties:
 
 
 class ExcitationProperties:
-    def __init__(self, singlet_polarization, singlet_intensity,
-                 crescent_polarization, crescent_intensity,
-                 trigger_polarization, trigger_intensity,
-                 num_triggers, cw_delay=None):
+    def __init__(self, singlet_polarization=None, singlet_intensity=None,
+                 crescent_polarization=None, crescent_intensity=None,
+                 trigger_polarization=None, trigger_intensity=None,
+                 num_triggers=None, cw_delay=None):
 
         self.singlet_polarization = singlet_polarization
         self.singlet_intensity = singlet_intensity
@@ -76,7 +81,10 @@ class Experiment:
 
         # collection properties
         self.collection_time_point_ns = collection_time_point_ns
-        self.collection_time_point_us = collection_time_point_ns / 1000
+        if collection_time_point_ns is not None:
+            self.collection_time_point_us = collection_time_point_ns / 1000
+        else:
+            self.collection_time_point_us = None
         self.repetitions = repetitions
 
         self.excitation_scheme = excitation_scheme
@@ -101,6 +109,7 @@ class Experiment:
 
         self.trigger_number = trigger_number
         self.collection_start_time = collection_start_time
+        self.bleach_rate = molecule_properties.bleach_rate
 
     def get_detector_counts(self, fluorophores, from_state, to_state, collection_times, get_time=False):
         x, y, _, t, = fluorophores.get_xyzt_at_transitions(from_state, to_state)
@@ -168,9 +177,9 @@ class Experiment:
 
 
 def run_experiment(molecule_props, excitation_props,
-                   collection_time_point_ns,
                    repetitions,
                    excitation_scheme,
+                   collection_time_point_ns=None,
                    phosphorescence_collection=False,
                    trigger_collection = False,
                    ):

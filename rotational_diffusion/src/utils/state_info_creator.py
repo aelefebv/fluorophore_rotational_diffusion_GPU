@@ -28,12 +28,22 @@ def create_triplet_state_info(molecule, photobleach=False):
     return state_info
 
 
-def create_singlet_state_info(molecule, photobleach=False):
+def create_singlet_state_info(molecule, photobleach=False, bleach_rate=0.05):
     ground_state = fluorophore.ElectronicState('ground')
+    bleached_state = fluorophore.ElectronicState('bleached')
+    if photobleach:
+        singlet_transition = ['ground', 'bleached']
+        singlet_transition_probabilities = [1-bleach_rate, bleach_rate]
+    else:
+        singlet_transition = 'ground'
+        singlet_transition_probabilities = 1
     singlet_state = fluorophore.ElectronicState(
         'singlet', lifetime=molecule.singlet_lifetime_ns,
-        transition_states='ground',
+        transition_states=singlet_transition,
+        probabilities=singlet_transition_probabilities
     )
     state_info = fluorophore.PossibleStates(ground_state)
     state_info.add_state(singlet_state)
+    if photobleach:
+        state_info.add_state(bleached_state)
     return state_info

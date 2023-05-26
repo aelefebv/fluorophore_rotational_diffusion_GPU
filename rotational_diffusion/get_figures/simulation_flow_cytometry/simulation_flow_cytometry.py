@@ -21,7 +21,7 @@ number_of_triggers = 1
 # ref: https://febs.onlinelibrary.wiley.com/doi/full/10.1016/S0014-5793%2898%2901425-2
 atpase = {'C_tag': 60, 'V1_incomplete': 900, 'V1_complete': 1100, 'V0_V1_complex': 113000}  # these get multiplied by pi during the simulation
 rotational_diffusion_times = list(atpase.values())
-collection_times_ns = np.logspace(1.5, 4, num=5).tolist()  # 5 time points, logarithmic spacing ~30 - 10000 ns
+collection_times_ns = np.logspace(1, 4, num=200).tolist()  # 5 time points, logarithmic spacing ~30 - 10000 ns
 crescent_intensities = [0]
 singlet_intensities = [2]
 

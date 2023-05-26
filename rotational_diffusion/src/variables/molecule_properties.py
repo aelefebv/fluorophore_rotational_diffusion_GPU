@@ -3,6 +3,12 @@ from rotational_diffusion.src import np
 
 
 @dataclass
+class Fluorescein:
+    singlet_lifetime_ns: float = 4
+    singlet_quantum_yield: float = 1
+    rotational_diffusion_time_ns: float = 3  #?
+
+@dataclass
 class GFP:
     singlet_lifetime_ns: float = 3
     triplet_lifetime_ns: float = 6E06
@@ -58,9 +64,9 @@ class mScarlet_low_triplet:
 
 @dataclass
 class rsEGFP2:
-    singlet_lifetime_ns: float = 5E05
+    singlet_lifetime_ns: float = 3
     singlet_quantum_yield: float = 0.35
-    rotational_diffusion_time_ns: float = 1E05 * np.pi  # figure S5 Ilaria's
+    rotational_diffusion_time_ns: float = 23
 
 
 @dataclass
