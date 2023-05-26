@@ -1,4 +1,4 @@
-# Simulations for *paper name*
+# Simulations for *__paper name*
 This repo contains the code for the simulations in *paper name*.
 ## Citation:
 If you use this code in your research, please cite the following paper:
