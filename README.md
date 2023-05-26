@@ -23,18 +23,18 @@ To replicate the data, figures, and animations from the paper, follow these step
   - Learn more about virtual environments here: https://docs.python.org/3/tutorial/venv.html
   
 
-- CPU-based (slow for large simulations):
+- CPU-based (slower for large simulations):
   - option 1: `pip install -r requirements.txt`
   - option 2: `pip install numpy pandas matplotlib`
 
 
-- GPU-based (Windows and Linux with NVIDIA GPUs only):
+- GPU-based (slower for small simulations)
+  - Windows and Linux with NVIDIA GPUs only
   1. Install CUDA if you haven't already:
      - Windows: https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html
      - Linux: https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html
   2. Install required packages:
-       - option 1: `pip install -r requirements_gpu.txt`
-       - option 2: `pip install numpy pandas matplotlib cupy-cuda12x`
+       - `pip install numpy pandas matplotlib cupy-cuda12x`
          - Note: cupy-cuda12x is the latest version of cupy that supports CUDA 12.0, but you should install the latest version of cupy that supports your specific CUDA version.
 
 ## System Requirements:

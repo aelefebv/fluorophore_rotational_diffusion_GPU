@@ -12,6 +12,3 @@ try:
 except ModuleNotFoundError:
     import numpy as np
     print("[INFO] Running on CPU.")
-
-# import numpy as np
-# print("[INFO] Running on CPU.")
