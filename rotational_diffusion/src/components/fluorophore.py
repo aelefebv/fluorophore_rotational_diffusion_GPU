@@ -221,7 +221,6 @@ class FluorophoreCollection:
         # associated with emitting light:
         self.transition_events = {k: [] for k in ('x', 'y', 'z', 't', 'initial_state', 'final_state')}
 
-    # todo should change this to take in some kind of excitation scheme?
     def phototransition(
         self,
         initial_state,  # Integer or string
@@ -281,7 +280,6 @@ class FluorophoreCollection:
             tr_t[selected] = t + np.random.exponential(lifetimes[which_state])
         self.transition_times[i] = tr_t
 
-    # todo, this would be the "waits" step?
     def time_evolve(self, delta_t):
         if len(self.id) == 0:
             return None  # No molecules, don't bother
