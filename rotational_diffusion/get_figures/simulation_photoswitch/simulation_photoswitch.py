@@ -57,7 +57,7 @@ def run_photoswitch_scheme(fluorophores, on_properties, off_properties, collecti
     # Stop collecting when experiment is over
     collection_end_time = total_run_time
 
-    # This returned collection value list is for downstream analysis
+    # This returned collection value list is for downstream time-gated analysis
     collection_time_points = [(1, collection_start_time, collection_end_time)]
     return collection_time_points
 
