@@ -12,7 +12,7 @@ from rotational_diffusion.src.components import fluorophore
 
 ## User variables
 NUM_MOLECULES = 2E07              # default 2E07,     Decrease = faster, noisier
-EXPERIMENTAL_REPETITIONS = 50      # default 50,        Decrease = faster, noisier
+EXPERIMENTAL_REPETITIONS = 50     # default 50,        Decrease = faster, noisier
 
 
 ## Define our fluorophore's properties
