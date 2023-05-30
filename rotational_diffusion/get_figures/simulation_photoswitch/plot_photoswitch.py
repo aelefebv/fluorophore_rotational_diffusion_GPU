@@ -44,7 +44,7 @@ for i, (name, group) in enumerate(grouped):
     rolling_mean = group["ratio_xy_mean"].rolling(window=ROLLING_AVERAGE_WINDOW, min_periods=1, center=True).mean()
     ax.plot(group["off_intensity"], rolling_mean, color=color_cycle[i % num_unique_rdt])
 
-ax.set_xlabel("off_intensity")
+ax.set_xlabel("Off intensity")
 ax.set_ylabel(f"XY Ratio")
 ax.legend()
 
