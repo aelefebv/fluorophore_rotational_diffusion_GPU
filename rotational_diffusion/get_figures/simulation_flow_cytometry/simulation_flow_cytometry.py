@@ -203,12 +203,12 @@ class Experiment:
 
         excitation_attr = self.excitation_props.excitation_laser.__dict__
         for name, value in excitation_attr.items():
-            attr_names.append(f'on_{name}')
+            attr_names.append(f'excitation_{name}')
             attr_values.append(value)
 
         trigger_attr = self.excitation_props.trigger_laser.__dict__
         for name, value in trigger_attr.items():
-            attr_names.append(f'off_{name}')
+            attr_names.append(f'trigger_{name}')
             attr_values.append(value)
 
         for name, value in self.sample.__dict__.items():

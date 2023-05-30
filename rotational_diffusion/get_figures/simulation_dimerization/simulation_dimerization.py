@@ -11,8 +11,8 @@ from rotational_diffusion.src.components import fluorophore
 
 
 ## User variables
-NUM_MOLECULES = 2E05               # default 2E07,     Decrease = faster, noisier
-EXPERIMENTAL_REPETITIONS = 3      # default 50,        Decrease = faster, noisier
+NUM_MOLECULES = 2E07              # default 2E07,     Decrease = faster, noisier
+EXPERIMENTAL_REPETITIONS = 50      # default 50,        Decrease = faster, noisier
 
 
 ## Define our fluorophore's properties
@@ -203,12 +203,12 @@ class Experiment:
 
         excitation_attr = self.excitation_props.excitation_laser.__dict__
         for name, value in excitation_attr.items():
-            attr_names.append(f'on_{name}')
+            attr_names.append(f'excitation_{name}')
             attr_values.append(value)
 
         trigger_attr = self.excitation_props.trigger_laser.__dict__
         for name, value in trigger_attr.items():
-            attr_names.append(f'off_{name}')
+            attr_names.append(f'trigger_{name}')
             attr_values.append(value)
 
         for name, value in self.sample.__dict__.items():
