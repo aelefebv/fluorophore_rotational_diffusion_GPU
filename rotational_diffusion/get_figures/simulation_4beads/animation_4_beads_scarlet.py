@@ -9,7 +9,7 @@ from rotational_diffusion.src.components import fluorophore
 from rotational_diffusion.src.utils import animating
 
 ## User variables
-NUM_MOLECULES = 1E04  # Decrease = faster, noisier
+NUM_MOLECULES = 1E06  # Decrease = faster, noisier
 rotational_diffusion_times = [7249, 24465, 113263, 906106]
 
 ## Define our fluorophore's properties
