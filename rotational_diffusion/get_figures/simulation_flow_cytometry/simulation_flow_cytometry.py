@@ -283,7 +283,7 @@ def run():
     for sample_num, rotational_diffusion_time in enumerate(rotational_diffusion_times):
         for collection_num, collection_time_point_ns in enumerate(collection_times_ns):
             logger.info(f'\nSample \t\t\t\t\t\t{sample_num + 1} of {len(rotational_diffusion_times)}\n'
-                        f'Collection \t\t\t\t\t{collection_num + 1} of {len(collection_times_ns)}\n')
+                        f'Collection \t\t\t\t{collection_num + 1} of {len(collection_times_ns)}\n')
             sample = SampleProperties(
                 fluorescent_molecule=fluorophore_molecule,
                 num_molecules=NUM_MOLECULES,
