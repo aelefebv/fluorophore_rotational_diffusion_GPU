@@ -1,6 +1,6 @@
 import numpy
 import os
-from rotational_diffusion.src.visualization import animating
+from rotational_diffusion.src.utils import animating
 from rotational_diffusion.src import components, variables, np
 import time
 
