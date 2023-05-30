@@ -17,7 +17,7 @@ csv_dir = os.path.join(figure_dir, 'data')
 # find the latest csv file in the data directory
 csv_files = [f for f in os.listdir(csv_dir) if f.endswith('.csv')]
 # remove any files that don't contain the word "venus"
-csv_files = [f for f in csv_files if "venus" in f]
+csv_files = [f for f in csv_files if "scarlet" in f]
 csv_files.sort()
 CSV_NAME = CSV_NAME or csv_files[-1]
 csv_path = os.path.join(figure_dir, 'data', CSV_NAME)
@@ -60,7 +60,7 @@ now = now.strftime("%Y%m%d_%H%M%S")
 csv_dir = os.path.join(figure_dir, 'plots')
 if not os.path.exists(csv_dir):
     os.makedirs(csv_dir)
-fig.savefig(os.path.join(csv_dir, f'{now}-4beads_venus.png'), dpi=PLOT_DPI, bbox_inches='tight')
+fig.savefig(os.path.join(csv_dir, f'{now}-4beads_scarlet.png'), dpi=PLOT_DPI, bbox_inches='tight')
 
 if SHOW_PLOT:
     plt.show()
