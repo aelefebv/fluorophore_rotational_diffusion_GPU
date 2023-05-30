@@ -4,23 +4,20 @@ from rotational_diffusion.src import np
 
 def ghosh_propagator(step_sizes):
     """
-    Draw random angular displacements from the "new" propagator for
-    diffusion on a sphere, as described by Ghosh et al. in arXiv:1303.1278.
+    Draw random angular displacements from Ghosh propagator for diffusion on a sphere.
 
-    The new propagator, hopefully accurate for larger time steps:
-        q_new = ((2 / sigma**2) * np.exp(-(beta/sigma)**2) *
-                 np.sqrt(beta * np.sin(beta)) *
-                 norm)
+    The propagator, as described in arXiv:1303.1278, provides a more accurate estimation
+    for larger time steps compared to a Gaussian propagator. This function uses an iterative
+    approach to draw random numbers until all step sizes have been drawn.
 
-                 ...where 'norm' is chosen to normalize the distribution.
+    Parameters:
+    step_sizes (np.ndarray): 1D array of nonnegative floats representing 'sigma' in the equation
 
-    'step_sizes' is a 1d numpy array of nonnegative floating point
-    numbers ('sigma' in the equation above).
-
-    Return value is a 1d numpy array the same shape as 'step_sizes',
-    with each entry drawn from a distribution determined by the
-    corresponding entry of 'step_sizes'.
+    Returns:
+    np.ndarray: 1D array with same shape as 'step_sizes', where each entry is a random
+                number drawn from a distribution determined by the corresponding entry of 'step_sizes'.
     """
+
     min_step_sizes = np.min(step_sizes)
     assert min_step_sizes >= 0
     if min_step_sizes == 0:
@@ -57,29 +54,36 @@ def ghosh_propagator(step_sizes):
 
 def gaussian_propagator(step_sizes):
     """
-    Draw random angular displacements from the Gaussian propagator for
-    diffusion on a sphere, as described by Ghosh et al. in arXiv:1303.1278.
+    Draw random angular displacements from Gaussian propagator for diffusion on a sphere.
 
-    The Gaussian propagator, accurate for small time steps:
-        q_gauss = ((2 / sigma**2) * np.exp(-(beta/sigma)**2) *
-                   beta)
+    The Gaussian propagator, described in arXiv:1303.1278, is accurate for small time steps. This function
+    uses inverse transform sampling to draw random numbers from the Gaussian distribution.
 
-    'step_sizes' is a 1d numpy array of nonnegative floating point
-    numbers ('sigma' in the equation above).
+    Parameters:
+    step_sizes (np.ndarray): 1D array of nonnegative floats representing 'sigma' in the equation
 
-    Return value is a 1d numpy array the same shape as 'step_sizes',
-    with each entry drawn from a distribution determined by the
-    corresponding entry of 'step_sizes'.
-
-    This is mostly useful for verifying that the Ghosh propagator works,
-    yielding equivalent results with fewer, larger steps.
+    Returns:
+    np.ndarray: 1D array with same shape as 'step_sizes', where each entry is a random
+                number drawn from a distribution determined by the corresponding entry of 'step_sizes'.
     """
+
     # Calculate draws via inverse transform sampling.
     result = step_sizes * np.sqrt(-np.log(np.random.uniform(0, 1, len(step_sizes))))
     return result
 
 
 def diffusive_step(x, y, z, normalized_time_step, propagator='ghosh'):
+    """
+    Perform a diffusive step on the sphere.
+
+    Parameters:
+    x, y, z (np.ndarray): 1D arrays representing 3D Cartesian coordinates
+    normalized_time_step (float): Normalized time step value
+    propagator (str): Type of propagator to use ('ghosh' or 'gaussian')
+
+    Returns:
+    tuple: x, y, z after diffusive step
+    """
     assert len(x) == len(y) == len(z)
     angle_step = np.sqrt(2*normalized_time_step)
     assert angle_step.shape in ((), (1,), x.shape)
@@ -96,6 +100,18 @@ def safe_diffusive_step(
     normalized_time_step,
     max_safe_step=0.5,  # Don't count on this, could be wrong
 ):
+    """
+    Perform a diffusive step on the sphere with a 'safe' maximum step size.
+
+    Parameters:
+    x, y, z (np.ndarray): 1D arrays representing 3D Cartesian coordinates
+    normalized_time_step (float): Normalized time step value
+    max_safe_step (float): Maximum safe step size. Default is 0.5, but this could be inaccurate.
+
+    Returns:
+    tuple: x, y, z after safe diffusive step
+    """
+
     num_steps, remainder = np.divmod(normalized_time_step, max_safe_step)
     num_steps = num_steps.astype('uint64')  # Always an integer
     num_steps_min = np.amin(num_steps)
