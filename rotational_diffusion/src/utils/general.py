@@ -2,23 +2,29 @@ from rotational_diffusion.src import np
 import numpy
 
 
-def split_counts_xy(x, y, t):
-    p_x, p_y = x**2, y**2
-    r = np.random.uniform(0, 1, size=len(t))
-    in_channel_x = (r < p_x)
-    in_channel_y = (p_x <= r) & (r < p_x + p_y)
-    t_x, t_y = t[in_channel_x], t[in_channel_y]
-    return t_x, t_y
-
-
 def sin_cos(radians, method='sqrt'):
-    """We often want both the sine and cosine of an array of angles. We
+    """
+    We often want both the sine and cosine of an array of angles. We
     can do this slightly faster with a sqrt, especially in the common
     cases where the angles are between 0 and pi, or 0 and 2pi.
 
     Since the whole point of this code is to be fast, there's no
     checking for validity, i.e. 0 < radians < pi, 2pi. Make sure you
     don't use out-of-range arguments.
+
+    Parameters
+    ----------
+    radians : ndarray
+        Input array of angles in radians.
+    method : str, optional
+        Method to compute sine. It could be 'direct', 'sqrt', '0,2pi', or '0,pi'. Default is 'sqrt'.
+
+    Returns
+    -------
+    sin : ndarray
+        Sine of the input angles.
+    cos : ndarray
+        Cosine of the input angles.
     """
     radians = np.atleast_1d(radians)
     assert method in ('direct', 'sqrt', '0,2pi', '0,pi')
@@ -39,11 +45,38 @@ def sin_cos(radians, method='sqrt'):
 
 
 def polar_displacement(x, y, z, theta_d, phi_d, method='accurate', norm=True):
-    """Take a Cartesian positions x, y, z and update them by
+    """
+    Take a Cartesian positions x, y, z and update them by
     spherical displacements (theta_d, phi_d). Theta is how much you
     moved and phi is which way.
 
     Note that this returns gibberish for theta_d > pi
+
+    Parameters
+    ----------
+    x : ndarray
+        x-coordinates.
+    y : ndarray
+        y-coordinates.
+    z : ndarray
+        z-coordinates.
+    theta_d : ndarray
+        Spherical displacement (amount of movement).
+    phi_d : ndarray
+        Spherical displacement (direction of movement).
+    method : str, optional
+        Method to perform the displacement. It could be 'naive' or 'accurate'. Default is 'accurate'.
+    norm : bool, optional
+        If True, normalizes the final displacement vectors. Default is True.
+
+    Returns
+    -------
+    x_f : ndarray
+        Updated x-coordinates.
+    y_f : ndarray
+        Updated y-coordinates.
+    z_f : ndarray
+        Updated z-coordinates.
     """
     assert method in ('naive', 'accurate')
     x_d, y_d, z_d = to_xyz(theta_d, phi_d)
@@ -95,7 +128,27 @@ def polar_displacement(x, y, z, theta_d, phi_d, method='accurate', norm=True):
 
 
 def to_xyz(theta, phi, method='ugly'):
-    """Convert spherical polar angles to unit-length Cartesian coordinates"""
+    """
+    Converts spherical polar angles to unit-length Cartesian coordinates.
+
+    Parameters
+    ----------
+    theta : ndarray
+        Polar angle in radians.
+    phi : ndarray
+        Azimuthal angle in radians.
+    method : str, optional
+        Method to perform the conversion. It could be 'ugly' or 'direct'. Default is 'ugly'.
+
+    Returns
+    -------
+    x : ndarray
+        x-coordinate.
+    y : ndarray
+        y-coordinate.
+    z : ndarray
+        z-coordinate.
+    """
     assert method in ('ugly', 'direct')
     sin_th, cos_th = sin_cos(theta, method='0,pi')
     sin_ph, cos_ph = sin_cos(phi, method='0,2pi')
