@@ -22,8 +22,8 @@ csv_path = os.path.join(figure_dir, 'data', CSV_NAME)
 df = pd.read_csv(csv_path)
 
 ## Group data by sample:
-atpase = {'ab': 250, 'ab-m': 260, 'ab-agg1': 417, 'ab-sol': 666, 'ab-proto': 2000}
-group_names = list(atpase.keys())
+sizes = {'ab': 250, 'ab-m': 260, 'ab-agg1': 417, 'ab-sol': 666, 'ab-proto': 2000}
+group_names = list(sizes.keys())
 grouped = df.groupby("sample_rdt_unpied")
 
 ## Plot the data:

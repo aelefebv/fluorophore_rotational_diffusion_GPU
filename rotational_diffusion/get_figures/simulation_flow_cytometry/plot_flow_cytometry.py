@@ -1,52 +1,52 @@
 import os
-
-import pandas as pd
-import matplotlib.pyplot as plt
 import datetime
 
+import pandas as pd                 # for opening csv files into a nice format for plotting
+import matplotlib.pyplot as plt     # for the actual plotting
 
-top_path = os.path.join('rotational_diffusion', 'get_figures', 'simulation_flow_cytometry')
-csv_path = os.path.join(top_path, 'data', '20230523_182604_atpase.csv')
-# Load the CSV data into a pandas dataframe
+## User variables:
+CSV_NAME = None                 # default None,     specify a csv file name here to use instead of the latest
+ROLLING_AVERAGE_WINDOW = 1      # default 1,        increase for smoother rolling average, 1 is just connecting points
+PLOT_DPI = 300                  # default 300,      increase for higher resolution
+SHOW_PLOT = True                # default True,     set to False if you want to save the plot without showing it
+
+## Load data:
+path_to_this_script = os.path.abspath(__file__)
+figure_dir = os.path.dirname(path_to_this_script)
+csv_dir = os.path.join(figure_dir, 'data')
+# find the latest csv file in the data directory
+csv_files = [f for f in os.listdir(csv_dir) if f.endswith('.csv')]
+csv_files.sort()
+CSV_NAME = CSV_NAME or csv_files[-1]
+csv_path = os.path.join(figure_dir, 'data', CSV_NAME)
 df = pd.read_csv(csv_path)
 
-# Group the data by "rotational_diffusion_time_us_unpied"
-grouped = df.groupby("rotational_diffusion_time_ns_unpied")
+## Group data by sample:
 atpase = {'C_tag': 60, 'V1_incomplete': 900, 'V1_complete': 1100, 'V0_V1_complex': 113000}  # these get multiplied by pi during the simulation
 group_names = list(atpase.keys())
+grouped = df.groupby("sample_rdt_unpied")
 
-# create a plot
+## Plot the data:
+# create a plot, using subplot here to keep it similar to other code
 fig, ax = plt.subplots(nrows=1, ncols=1, sharex=True, figsize=(7, 6))
-
-# Set the color cycle for different "rotational_diffusion_time_us" values
+# set the color cycle for unique sample values
 color_cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
+# find number of unique rotational diffusion times for color cycling
+num_unique_rdt = len(df["sample_rdt_unpied"].unique())
 
-# find number of unique rotational diffusion times
-num_unique_rdt = len(df["rotational_diffusion_time_ns_unpied"].unique())
-
-# Plot each group on the same subplot as a scatter plot with y error bars and different colors for each group
 for i, (name, group) in enumerate(grouped):
-    rotational_diffusion_time_us = name
-    ax.errorbar(group["collection_time_point_us"], group["ratio_xy_mean"], yerr=group["ratio_xy_std"],
+    # plot each group on the same subplot as a scatter plot with y error bars
+    ax.errorbar(x=group["collection_time_point"], y=group["ratio_xy_mean"], yerr=group["ratio_xy_std"],
                 label=f"{group_names[i]}", fmt='o', color=color_cycle[i % num_unique_rdt],
                 alpha=0.2)
-    ax.set_ylabel(f"XY Ratio")
-    ax.legend()
 
-    # Plot a rolling average line between the data points
-    rolling_mean = group["ratio_xy_mean"].rolling(window=1, min_periods=1, center=True).mean()
-    ax.plot(group["collection_time_point_us"], rolling_mean, color=color_cycle[i % num_unique_rdt])
+    # plot a rolling average line between the data points
+    rolling_mean = group["ratio_xy_mean"].rolling(window=ROLLING_AVERAGE_WINDOW, min_periods=1, center=True).mean()
+    ax.plot(group["collection_time_point"], rolling_mean, color=color_cycle[i % num_unique_rdt])
 
-ax.set_xlabel("Collection time point (us)")
-
-#set ylim between 1 and 4
-ax.set_ylim(1, 4)
-
-# Adjust the spacing between subplots
-fig.tight_layout()
-
-# Show the plot
-plt.show()
+ax.set_xlabel("Collection time point")
+ax.set_ylabel(f"XY Ratio")
+ax.legend()
 
 # put legend on bottom right of plot
 ax.legend(loc='lower right', bbox_to_anchor=(1, 0.1), ncol=1, fancybox=True, shadow=False)
@@ -56,4 +56,12 @@ now = datetime.datetime.now()
 now = now.strftime("%Y%m%d_%H%M%S")
 
 # save the figure
-fig.savefig(os.path.join(top_path, 'plots', f'{now}_flow.png'), dpi=300, bbox_inches='tight')
+csv_dir = os.path.join(figure_dir, 'plots')
+if not os.path.exists(csv_dir):
+    os.makedirs(csv_dir)
+fig.savefig(os.path.join(csv_dir, f'{now}-flow_cyto.png'), dpi=PLOT_DPI, bbox_inches='tight')
+
+if SHOW_PLOT:
+    plt.show()
+else:
+    plt.close(fig)
