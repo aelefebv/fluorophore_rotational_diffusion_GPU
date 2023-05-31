@@ -46,6 +46,8 @@ for i, (name, group) in enumerate(grouped):
 
 ax.set_xlabel("Bleach intensity")
 ax.set_ylabel(f"XY Ratio")
+# Make x logarithmic
+# ax.set_xscale('log')
 ax.legend()
 
 # put legend on bottom right of plot

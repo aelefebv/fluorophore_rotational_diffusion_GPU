@@ -4,11 +4,8 @@ from dataclasses import dataclass
 from datetime import datetime
 import os
 
-from rotational_diffusion.src import np                             # for GPU-agnosticism
+from rotational_diffusion.src import np, fluorophore  # for GPU-agnosticism
 from rotational_diffusion.src.utils.base_logger import logger       # for logging progress
-
-from rotational_diffusion.src.components import fluorophore
-
 
 ## User variables
 NUM_MOLECULES = 2E07              # default 2E07,      Decrease = faster, noisier

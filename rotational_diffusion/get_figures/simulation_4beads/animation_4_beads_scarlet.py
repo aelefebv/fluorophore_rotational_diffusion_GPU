@@ -3,9 +3,8 @@ import os
 from dataclasses import dataclass
 from datetime import datetime
 
-from rotational_diffusion.src import np
+from rotational_diffusion.src import np, fluorophore
 
-from rotational_diffusion.src.components import fluorophore
 from rotational_diffusion.src.utils import animating
 
 ## User variables
