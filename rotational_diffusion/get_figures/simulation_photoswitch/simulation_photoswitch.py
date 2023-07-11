@@ -9,7 +9,7 @@ from rotational_diffusion.src.utils.base_logger import logger       # for loggin
 
 ## User variables
 NUM_MOLECULES = 1E05                # default 1E05,     Decrease = faster, noisier
-EXPERIMENTAL_REPETITIONS = 4        # default 4,        Decrease = faster, noisier
+EXPERIMENTAL_REPETITIONS = 2        # default 4,        Decrease = faster, noisier
 
 
 ## Define our fluorophore's lifetime
@@ -21,7 +21,7 @@ class rsEGFP2:
 
 
 ## Create excitation scheme
-def run_photoswitch_scheme(fluorophores, on_properties, off_properties, collection_time_ns=1E6):
+def run_photoswitch_scheme(fluorophores, on_properties, off_properties, collection_time_ns=5E5):
     # Assume continuous on and off switching and no cross-talk
     # Let's assume a period of 10 ns is roughly continuous
     period_ns = 10
@@ -249,6 +249,7 @@ def run():
     on_intensity = 0.01
     on_polarization = (1, 0, 0)
     off_intensities = [0.002, 0.010, 0.05, 0.25, 1.25, 6.25]
+    off_intensities.reverse()
     off_polarization = (0, 1, 0)
 
     # Run the multi-variate simulation
