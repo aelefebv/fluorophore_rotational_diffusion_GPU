@@ -50,7 +50,7 @@ for i, (name, group) in enumerate(grouped):
 
     # plot a rolling average line between the data points
     rolling_mean = group["ratio_xy_mean"].rolling(window=ROLLING_AVERAGE_WINDOW, min_periods=1, center=True).mean()
-    ax.plot(group["collection_time_point"], rolling_mean, color=color_cycle[i % num_unique_rdt])
+    ax.plot(group["collection_time_point"], rolling_mean, color=color_cycle[i % num_unique_crescent])
 
 axs[-1].set_xlabel("Collection time point")
 
