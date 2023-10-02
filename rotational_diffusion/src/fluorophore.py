@@ -207,7 +207,6 @@ class FluorophoreCollection:
     ):
         assert isinstance(state_info, PossibleStates)
         assert state_initial in state_info
-
         self.state_info = state_info
         self.orientations = Orientations(num_molecules, rot_diffusion_time, orientation_initial)
         self.states = np.full(self.orientations.n, state_initial, dtype='uint8')
@@ -313,9 +312,10 @@ class FluorophoreCollection:
             states = states[idx]  # A sorted copy of the states that change
             t = t[idx]
             transition_times = np.empty(len(states), dtype='float')
-            for initial_state in range(len(self.state_info.dict)):
-                s = slice(np.searchsorted(states, np.array(initial_state), 'left'),
-                          np.searchsorted(states, np.array(initial_state), 'right'))
+            state_slices = [slice(np.searchsorted(states, np.array(initial_state), 'left'),
+                                  np.searchsorted(states, np.array(initial_state), 'right'))
+                            for initial_state in range(len(self.state_info.dict.keys()))]
+            for initial_state, s in enumerate(state_slices):
                 if s.start == s.stop:
                     continue
                 fs = self.state_info[initial_state].transition_states
