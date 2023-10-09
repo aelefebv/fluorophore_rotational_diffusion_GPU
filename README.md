@@ -1,5 +1,6 @@
-# Simulations for *__paper name*
-This repo contains the code for the simulations in *paper name*.
+# Simulations of rotational diffusion ("tumbling") of fluorophores
+This repo contains GPU-accelerated code for modeling tumbling of fluorophores. This code supports our recent paper, "From cameras to confocal to cytometry: measuring tumbling rates is a general way to reveal protein binding."
+
 ## Citation:
 If you use this code in your research, please cite the following paper:
 ``` 
