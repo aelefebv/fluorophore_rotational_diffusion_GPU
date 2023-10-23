@@ -3,9 +3,8 @@ This repo contains GPU-accelerated code for modeling tumbling of fluorophores. T
 
 ## Citation:
 If you use this code in your research, please cite the following paper:
-``` 
+
 Julia R. Lazzari-Dean, Austin E.Y.T. Lefebvre, Rebecca Frank Hayward, Lachlan Whitehead, Maria Ingaramo, Andrew G. York. From cameras to confocal to cytometry: measuring tumbling rates is a general way to reveal protein binding. (2023) <a href="https://doi.org/10.5281/zenodo.10028432"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.10028432.svg" alt="DOI"></a>
-```
 
 ## Instructions:
 To replicate the data, figures, and animations from the paper, follow these steps:
