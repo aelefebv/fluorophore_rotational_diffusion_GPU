@@ -1,5 +1,5 @@
 # Simulations of rotational diffusion ("tumbling") of fluorophores
-This repo contains GPU-accelerated code for modeling tumbling of fluorophores. This code supports our recent paper, "From cameras to confocal to cytometry: measuring tumbling rates is a general way to reveal protein binding."
+This repo contains GPU-accelerated code for modeling tumbling of fluorophores. This code supports our recent paper, "From cameras to confocal to cytometry: measuring tumbling rates is a general way to reveal protein binding." Read the publication here: https://andrewgyork.github.io/tumbling_is_general
 
 ## Citation:
 If you use this code in your research, please cite the following paper:
